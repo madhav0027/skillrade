@@ -3,6 +3,7 @@ const express = require("express");
 const connection = require("./config/db,js");
 const cors = require("cors");
 const authroutes = require("./routes/auth.routes");
+const skillroutes = require("./routes/skill.routes");
 const morgan = require("morgan")
 const app = express();
 
@@ -13,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/auth',authroutes);
-
+app.use('/api/skill',skillroutes);
 
 connection();
 
