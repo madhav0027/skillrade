@@ -1,6 +1,7 @@
 const Quiz = require("../models/Quiz");
 const Quizattempt = require("../models/Quizattempt");
 const User = require("../models/User");
+const UserSkill = require("../models/UserSkill");
 
 
 //Admin (RBAC Setup)
@@ -54,19 +55,33 @@ exports.submitquiz = async (req,res) => {
         const alreadypassed = await Quizattempt.findOne({userId,quizId:_id,passed:true})        
         if(alreadypassed)
             res.status(400).json({message:"already passed"});
-        else if(passed){
-            const credits = await User.findByIdAndUpdate(
-            userId ,
-            { $inc: { credits: 10 } },
-            { new: true }
-        )}     
-
 
         const attempt = await Quizattempt.create({
             userId,
             quizId:_id,
             passed
         })
+
+        if(passed){
+            const credits = await User.findByIdAndUpdate(
+            userId ,
+            { $inc: { credits: 10 } },
+            { new: true }
+        )}
+        
+        const skillupdate = await UserSkill.findOneAndUpdate(
+            {
+                userId,
+                SkillId:quiz.SkillId
+            },
+            {
+                progress:100/quiz.questions.length,
+                status:"In-Progress"
+            }
+        )
+        console.log(skillupdate)
+
+
         res.json({
             passed,
             total:quiz.questions.length
