@@ -20,6 +20,11 @@ const User = new mongoose.Schema(
         credits:{
             type:Number,
             default:0
+        },
+        isverifed:{
+            type:Boolean,
+            required:true,
+            default:false
         }
     },
     {timestamps:true}

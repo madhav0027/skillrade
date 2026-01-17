@@ -1,6 +1,20 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+
+
+//MailSetup
+
+const transporter = nodemailer.createTransport({
+    host:"smtp.mail.yahoo.com",
+    port:process.env.SMTP_PORT,
+    secure:false,
+    auth:{
+        user:process.env.SMTP_USER,
+        pass:process.env.SMTP_PASS
+    }
+})
 
 exports.register = async (req,res) => {
 
@@ -17,11 +31,27 @@ exports.register = async (req,res) => {
 
         const hashedpassword = await bcrypt.hash(password,12);
 
+        const mailverify = jwt.sign(
+            {usermail:email},
+            process.env.MAIL_SECRET,
+            {expiresIn:'15d'}
+        )
+
         const user = await User.create({
             username:username,
             password:hashedpassword,
             email:email
         });
+
+            const mailoptions = {
+                from:process.env.SMTP_USER,
+                to:email,
+                subject:"Skillrade Email Verification",
+                text:`Please Click In this URL To verify your email 
+                    http://localhost:5000/api/auth/verify?token=${mailverify}`
+            }
+
+            await transporter.sendMail(mailoptions)
 
         res.status(201).json({
             message:"User Created Successfully"
@@ -31,9 +61,35 @@ exports.register = async (req,res) => {
     catch(err){
         if(err){
             res.status(500).json({
-                message:`Server Error`
+                message:`Server Error ${err}`
             })
         }
+    }
+}
+
+exports.mail = async (req,res) => {
+    
+    const token = req.query.token;
+
+        if(!token)
+            res.status(404).json({message:"Verify Token is Expired"});
+        
+        const payload = jwt.verify(token,process.env.MAIL_SECRET)
+        
+        try{
+            const isverified = await User.findOne({email:payload.usermail})
+            if(isverified.isverifed)
+                res.status(401).json({message:"User Already Verified!!"});
+
+            const emailexist = await User.findOneAndUpdate(
+                {email:payload.usermail},
+                {isverifed:true}
+            )
+
+            res.status(200).send({message:`Greetings Your ${payload.usermail} is Verified`})
+        }catch(error){
+        if(error)
+            res.status(500).json({message:"error in verifymail"})
     }
 }
 
@@ -45,6 +101,7 @@ exports.login = async (req,res) => {
             res.status(409).json({message:"All Fields are Required!!"})
         
         const Userexist = await User.findOne({email});
+
         if(!Userexist)
             res.status(401).json({message:"Invalid Credentials !!"});
         
@@ -64,7 +121,8 @@ exports.login = async (req,res) => {
                 id:Userexist._id,
                 username:Userexist.username,
                 email:Userexist.email,
-                credits:Userexist.credits
+                credits:Userexist.credits,
+                isverified:Userexist.isverifed
             }
         })
     }catch(err){
