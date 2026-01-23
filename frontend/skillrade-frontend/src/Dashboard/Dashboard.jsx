@@ -6,22 +6,35 @@ import { replace, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
 
-    const user = localStorage?.getItem("user")
+    const [user,setuser] = useState({});
+    const token = localStorage.getItem("token");
 
     const [skills,setskills] = useState([]);
     const navigate = useNavigate();
-    console.log(user);
-
-    const credits = localStorage?.getItem('credits')
 
     useEffect(() => {
-        API.get('/skill/myskill')
+        if(token){
+
+            API.get('/skill/myskill')
             .then(res => 
                 setskills(res.data))
+                
+                API.get('/user',{
+                    headers:{
+                        Authorization: `Bearer ${localStorage.getItem("token")}` 
+                    }
+                }).then(res => setuser(res.data))
+        }
 
-        console.log(skills)
+    },[])
 
-    },[credits])
+
+    const renderContent = (text) => {
+        return text?.split(",").map((line,i) =>{
+            return <h4 key={i} className="text-lg mb-4 font-small">{line}</h4>
+            
+        })
+    }
 
     const handlequizskill = (skillname,skillid) => {
         navigate('/quiz',{
@@ -52,7 +65,7 @@ export default function Dashboard() {
         
         <div>
             <h1 className="text-3xl font-bold">
-            {user ? `Welcome, ${user}` : "Welcome"}
+            {user.username?.length > 0 ? `Welcome, ${user.username}` : "Welcome"}
             </h1>
 
             <p className="text-gray-500 mt-1">
@@ -62,8 +75,8 @@ export default function Dashboard() {
             </p>
             <p className="font-semibold">
                 {
-                    credits > 0 ? 
-                    `Credits : ${credits}`:``
+                    user.credits > 0 ? 
+                    `Credits : ${user.credits}`:``
                 }
             </p>
         </div>
@@ -71,7 +84,7 @@ export default function Dashboard() {
         {/* Profile Photo */}
         <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-300">
             <img
-            src="https://via.placeholder.com/150"
+            src={`${user.profilepic?.length > 0 ? user.profilepic : 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffreesvg.org%2Fstorage%2Fimg%2Fthumb%2Fabstract-user-flat-3.png&f=1&nofb=1&ipt=2f3135430972f8005d82794b55b8a8d90dcf175db12f543fba391c27fd15e4d7'}`}
             alt="Profile"
             className="w-full h-full object-cover"
             />
@@ -139,11 +152,36 @@ export default function Dashboard() {
                     </div>
                     
                 ))}
-                <button onClick={e => navigate('/skills')} className="mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                <button onClick={e => navigate('/skills')} className="print:hidden mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                     Add More Skills..
                 </button>                
                 </div>
             )}
+            </section>
+            {/* Qualification Section */}
+            <section>
+            <h2 className="text-xl mt-6 font-semibold mb-6 uppercase tracking-wide">
+                Qualification
+            </h2>
+
+            {user.qualification?.length === 0 ? (
+                /* Empty State */
+                <div className="text-center py-16">
+                <p className="text-lg font-medium text-gray-700">
+                    No Qualifications are added
+                </p>
+                </div>
+            ) : (
+                /* Qaulification List */
+                <div className="space-y-6">
+                    <div className=" justify-between items-center ">
+                        {renderContent(user.qualification)}
+                    </div>
+                </div>
+            )}
+                <button onClick={() => user.username?.length > 0 ? navigate('/settings'): navigate('/login')} className="print:hidden mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Add Qualification
+                </button>                            
             </section>
         </div>
         </div>

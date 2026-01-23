@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import API from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 const About = () => {
   const [formData, setFormData] = useState({
@@ -7,20 +9,27 @@ const About = () => {
     feedback: "",
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Feedback submitted:", formData);
 
     // Reset form (you can later connect this to backend/API)
-    setFormData({
-      username: "",
-      email: "",
-      feedback: "",
-    });
+    
+    const res = await API.post('/user/feedback',{
+      username:formData.username,
+      email:formData.email,
+      feedback:formData.feedback
+    })
+
+    if(res.data.status === "DONE")  
+      navigate("/thank-you",{state:{fromFeedback:true}})
+
   };
 
   return (
@@ -61,8 +70,7 @@ const About = () => {
                 required
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-            </div>
-
+            </div>  
             {/* Email */}
             <div>
               <label className="block text-gray-700 font-medium mb-1">

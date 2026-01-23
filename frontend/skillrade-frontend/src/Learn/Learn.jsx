@@ -1,67 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../api/api";
 
-const data = {
-  Programming: {
-    C: {
-      intro: "C is a powerful system programming language.",
-      content: `
-## What is C?
-C is a general-purpose programming language.
-
-## Features
-- Fast
-- Portable
-- Low-level memory access
-
-## Example
-\`\`\`
-#include <stdio.h>
-
-int main() {
-  printf("Hello, World!");
-  return 0;
-}
-\`\`\`
-`
-    },
-    JavaScript: {
-      intro: "JavaScript powers the web.",
-      content: `
-## What is JavaScript?
-JavaScript is used to create dynamic web applications.
-
-## Features
-- Runs in browser
-- Event-driven
-- Supports async programming
-
-## Example
-\`\`\`
-console.log("Hello World");
-\`\`\`
-`
-    },
-    Python: {
-      intro: "Python is simple and powerful.",
-      content: `
-## What is Python?
-Python is a high-level, interpreted language.
-
-## Features
-- Easy syntax
-- Huge libraries
-- AI & ML support
-
-## Example
-\`\`\`
-print("Hello World")
-\`\`\`
-`
-    }
-  }
-};
-
 
 // Simple markdown renderer (basic)
 const renderContent = (text) => {

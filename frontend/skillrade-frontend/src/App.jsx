@@ -12,6 +12,8 @@ import About from './about/About'
 import Learn from './Learn/Learn'
 import Quiz from './quiz/quiz'
 import Community from './community/Community'
+import Settings from './settings/Settings'
+import ThankYou from './about/Thankyou'
 
 function App() {
 
@@ -20,6 +22,7 @@ function App() {
       <BrowserRouter>
        <Navbar/>
         <Routes>
+          <Route path="/settings" element={<Settings/>}/>
           <Route path='/community' element={<Community/>} />
           <Route path='/quiz' element={<Quiz/>}/>
           <Route path='/learn' element={<Learn/>}/>
@@ -29,6 +32,7 @@ function App() {
           <Route path='/register' element={<Register/>}/>
           <Route path='/verify' element={<VerifyEmail/>}/>
           <Route path='/about' element={<About/>}/>
+          <Route path='/thank-you' element={<ThankYou/>}/>
         </Routes>
         <Routes>
           <Route path='/skilladmin' element={<SkillForm/>}/>
