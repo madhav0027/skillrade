@@ -20,7 +20,16 @@ exports.getuserbyskill = async (req,res) => {
     try {
         const {SkillId} = req.params;
 
-        const quizbyskill = await Quiz.findOne({SkillId})
+        const userid = req.user.userid;
+
+        const passedAttempts = await Quizattempt.find({
+            userId:userid,
+            passed:true
+        }).select("quizId")
+
+        const passedQuiz = passedAttempts.map(q => q.quizId)
+
+        const quizbyskill = await Quiz.find({SkillId,_id:{$nin:passedQuiz}})
         console.log(quizbyskill)
         res.status(200).json(quizbyskill);
     } catch (error) {
@@ -80,7 +89,6 @@ exports.submitquiz = async (req,res) => {
             }
         )
         console.log(skillupdate)
-
 
         res.json({
             passed,

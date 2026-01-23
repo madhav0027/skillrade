@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const Quizattempt = require("../models/Quizattempt");
 
 
 //MailSetup
@@ -110,19 +111,25 @@ exports.login = async (req,res) => {
             res.status(401).json({message:"Invalid Credentials !!"});
 
         const token = jwt.sign(
-            {userid:Userexist._id},
+            {
+                userid:Userexist._id,
+                roles:Userexist.roles
+            },
             process.env.JWT_SECRET,
             {expiresIn:'7d'}
         );
+
 
         res.json({
             token,
             Userexist:{
                 id:Userexist._id,
+                profilepic:Userexist.profilepic,
                 username:Userexist.username,
                 email:Userexist.email,
                 credits:Userexist.credits,
-                isverified:Userexist.isverifed
+                isverified:Userexist.isverifed,
+                roles:Userexist.roles
             }
         })
     }catch(err){
