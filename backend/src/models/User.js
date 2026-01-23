@@ -35,6 +35,9 @@ const User = new mongoose.Schema(
             enum:["user",'admin'],
             default:'user',
             required:true
+        },
+        qualification:{
+            type:String
         }
     },
     {timestamps:true}
