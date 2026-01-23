@@ -7,11 +7,13 @@ const skillroutes = require("./routes/skill.routes");
 const quizroutes = require("./routes/quiz.routes");
 const learnroutes = require('./routes/learn.routes');
 const userroutes = require("./routes/user.routes");
+const path = require("path")
 const morgan = require("morgan")
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+app.use("/uploads",express.static(path.join(__dirname,"public","uploads")))
 app.use(morgan('tiny'))
 app.use(express.json());
 app.use(cors());

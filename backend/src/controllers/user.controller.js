@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Feedback = require('../models/Feedback');
 const nodemailer = require("nodemailer")
 
+
 const transporter = nodemailer.createTransport({
     host:"smtp.mail.yahoo.com",
     port:process.env.SMTP_PORT,
@@ -25,17 +26,31 @@ exports.user = async(req,res) => {
     console.log(userId)
     const user = await User.findOne({_id:userId}).select("-password")
     console.log(user)
-    res.json(user);
+    res.json({
+        username:user.username,
+        email:user.email,
+        profilepic:"http://localhost:5000"+user.profilepic,
+        qualification:user.qualification
+    });
 
 }
 
 exports.userupdate = async(req,res) => {
+
     const userId = req.user.userid;
-    const {username,Profilepic,qualification} = req.body;
+
+    const {username,qualification} = req.body;
+    let profile;
+
+    console.log(req.file,username)
+
+    if(req.file)
+        profile = `/uploads/${req.file.filename}`
+
     console.log(qualification)
     const updateuser = await User.findOneAndUpdate({_id:userId},{
         username:username,
-        profilepic:Profilepic,
+        profilepic:profile,
         qualification:qualification
     })
 
