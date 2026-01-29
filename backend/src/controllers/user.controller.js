@@ -73,8 +73,8 @@ exports.userfeedback = async(req,res) => {
     const mailoptions = {
         from:process.env.SMTP_USER,
         to:email,
-        subject:"Skillrade Thankyou For Your Feedback",
-        text:`We Consider Your Feedback as our priority `
+        subject:"Skillrade Feedback",
+        text:`Thank you for your feedback ${username} We Consider Your Feedback as our priority `
     }
 
     await transporter.sendMail(mailoptions)    

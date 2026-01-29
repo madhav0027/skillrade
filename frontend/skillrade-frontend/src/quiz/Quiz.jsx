@@ -73,7 +73,7 @@ export default function Quiz() {
         {!showResult && (
           <>
             <h3 className="text-2xl font-semibold mb-6">
-              {quizData[current]?.questions[0]?.questionText.length > 0 ?`Question {current + 1}` : ``}
+              {quizData[current]?.questions[0]?.questionText.length > 0 ?`Question ${current + 1}` : ``}
             </h3>
 
             <p className="mb-10 text-3xl font-bold text-gray-800 leading-relaxed">

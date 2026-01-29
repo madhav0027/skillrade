@@ -54,13 +54,6 @@ exports.submitquiz = async (req,res) => {
                     passed=true;
             }
 
-            // quiz.questions.foreach((q,index) => {
-            //     if(answer[index] === q.correctans){
-            //         passed = true;
-                    
-            //     }
-            // })
-
         const alreadypassed = await Quizattempt.findOne({userId,quizId:_id,passed:true})        
         if(alreadypassed)
             res.status(400).json({message:"already passed"});

@@ -147,7 +147,7 @@ export default function Dashboard() {
                     </div>
 
                     <p className="text-sm text-gray-500 mt-1">
-                        {us.progress}% proficiency
+                        proficiency
                     </p>
                     </div>
                     
