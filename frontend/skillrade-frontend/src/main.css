@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* Reset defaults & force full height */
+html, body {
+  height: 100%;          /* or min-height: 100vh; */
+  margin: 0;
+  padding: 0;
+}
+
+/* Optional but very helpful: remove scroll if content fits exactly */
+html {
+  scroll-behavior: smooth;
+}
+
+/* If you want to force no horizontal scrollbars */
+body {
+  overflow-x: hidden;
+}

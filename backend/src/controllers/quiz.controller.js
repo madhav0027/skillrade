@@ -30,7 +30,6 @@ exports.getuserbyskill = async (req,res) => {
         const passedQuiz = passedAttempts.map(q => q.quizId)
 
         const quizbyskill = await Quiz.find({SkillId,_id:{$nin:passedQuiz}})
-        console.log(quizbyskill)
         res.status(200).json(quizbyskill);
     } catch (error) {
         if(error)
@@ -44,7 +43,6 @@ exports.submitquiz = async (req,res) => {
         const userId = req.user.userid;
         
         const quiz = await Quiz.findOne({_id});
-        console.log(quiz.questions.length)
 
         if(!quiz)
             res.status(404).json({message:"Quiz not Found!!"});
@@ -71,17 +69,22 @@ exports.submitquiz = async (req,res) => {
             { new: true }
         )}
         
+        const quizpassed = await Quizattempt.countDocuments({
+            userId:userId,
+            passed:true
+        }).select("quizId")
+
+
         const skillupdate = await UserSkill.findOneAndUpdate(
             {
                 userId,
                 SkillId:quiz.SkillId
             },
             {
-                progress:100/quiz.questions.length,
+                progress:quizpassed/quiz.questions.length,
                 status:"In-Progress"
             }
         )
-        console.log(skillupdate)
 
         res.json({
             passed,

@@ -40,8 +40,6 @@ exports.chooseSkill = async(req,res) => {
     try {
         const {SkillId} = req.body;
         const userId = req.user.userid; 
-        console.log("userid "+userId);
-        console.log("skillid"+SkillId);
         const exist = await UserSkill.findOne({SkillId,userId});
         
         if(exist)

@@ -23,9 +23,7 @@ exports.user = async(req,res) => {
     const payload = jwt.verify(token,process.env.JWT_SECRET);
 
     const userId = payload.userid
-    console.log(userId)
     const user = await User.findOne({_id:userId}).select("-password")
-    console.log(user)
     res.json({
         username:user.username,
         email:user.email,
@@ -42,12 +40,10 @@ exports.userupdate = async(req,res) => {
     const {username,qualification} = req.body;
     let profile;
 
-    console.log(req.file,username)
 
     if(req.file)
         profile = `/uploads/${req.file.filename}`
 
-    console.log(qualification)
     const updateuser = await User.findOneAndUpdate({_id:userId},{
         username:username,
         profilepic:profile,
