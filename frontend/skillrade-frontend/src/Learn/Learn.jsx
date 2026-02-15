@@ -1,81 +1,81 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import API from "../api/api";
 import { Menu, X, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Simple markdown renderer (basic)
 const renderContent = (text) => {
-const lines = text.split("\n");
-let elements = [];
-let codeBuffer = [];
-let inCodeBlock = false;
+  const lines = text.split("\n");
+  let elements = [];
+  let codeBuffer = [];
+  let inCodeBlock = false;
 
-lines.forEach((line, i) => {
-  // Toggle code block
-  if (line.trim().startsWith("```")) {
-    if (inCodeBlock) {
-      // closing ```
-      elements.push(
-        <pre
-          key={`code-${i}`}
-          className="bg-black/60 border border-gray-800 text-white p-4 rounded-xl mt-4 text-xs md:text-sm overflow-x-auto"
-        >
-          {codeBuffer.join("\n")}
-        </pre>
-      );
-      codeBuffer = [];
-      inCodeBlock = false;
-    } else {
-      // opening ```
-      inCodeBlock = true;
+  lines.forEach((line, i) => {
+    // Toggle code block
+    if (line.trim().startsWith("```")) {
+      if (inCodeBlock) {
+        // closing ```
+        elements.push(
+          <pre
+            key={`code-${i}`}
+            className="bg-black/60 border border-gray-800 text-white p-4 rounded-xl mt-4 text-xs md:text-sm overflow-x-auto"
+          >
+            {codeBuffer.join("\n")}
+          </pre>,
+        );
+        codeBuffer = [];
+        inCodeBlock = false;
+      } else {
+        // opening ```
+        inCodeBlock = true;
+      }
+      return;
     }
-    return;
-  }
 
-  // Inside code block → just collect
-  if (inCodeBlock) {
-    codeBuffer.push(line);
-    return;
-  }
+    // Inside code block → just collect
+    if (inCodeBlock) {
+      codeBuffer.push(line);
+      return;
+    }
 
-  // Heading
-  if (line.startsWith("## ")) {
+    // Heading
+    if (line.startsWith("## ")) {
+      elements.push(
+        <h2
+          key={`h-${i}`}
+          className="text-xl md:text-2xl font-semibold mt-8 text-white"
+        >
+          {line.slice(3)}
+        </h2>,
+      );
+      return;
+    }
+
+    if (line.includes("` ")) {
+      elements.push(
+        <h2
+          key={`h-${i}`}
+          className="text-xl md:text-2xl font-semibold mt-8 text-white"
+        >
+          {line.slice(3)}
+        </h2>,
+      );
+      return;
+    }
+
+    // Normal paragraph
     elements.push(
-      <h2
-        key={`h-${i}`}
-        className="text-xl md:text-2xl font-semibold mt-8 text-white"
+      <p
+        key={`p-${i}`}
+        className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed"
       >
-        {line.slice(3)}
-      </h2>
+        {line}
+      </p>,
     );
-    return;
-  }
+  });
 
-  if (line.includes("` ")) {
-    elements.push(
-      <h2
-        key={`h-${i}`}
-        className="text-xl md:text-2xl font-semibold mt-8 text-white"
-      >
-        {line.slice(3)}
-      </h2>
-    );
-    return;
-  }
-
-  // Normal paragraph
-  elements.push(
-    <p
-      key={`p-${i}`}
-      className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed"
-    >
-      {line}
-    </p>
-  );
-});
-
-return elements;
-}
+  return elements;
+};
 
 const Learn = () => {
   const [activeLang, setActiveLang] = useState("");
@@ -83,7 +83,7 @@ const Learn = () => {
   const [data, setData] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const [user,setuser] = useState(localStorage?.getItem("token"));
+  const [user] = useState(localStorage?.getItem("token"));
 
   useEffect(() => {
     API.get("/learn").then((res) => {
@@ -97,7 +97,6 @@ const Learn = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex">
-
       {/* 📱 Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-gray-900/80 backdrop-blur border-b border-gray-800 px-4 py-3 flex justify-between items-center">
         <h1 className="font-semibold text-white text-lg truncate">
@@ -148,7 +147,7 @@ const Learn = () => {
         <ul className="space-y-2">
           {data
             .filter((item) =>
-              item.contentname.toLowerCase().includes(search.toLowerCase())
+              item.contentname.toLowerCase().includes(search.toLowerCase()),
             )
             .map((item) => (
               <li key={item._id}>
@@ -178,43 +177,44 @@ const Learn = () => {
             {activeLang}
           </h1>
 
-
           {data.map(
             (item) =>
               item.contentname === activeLang && (
                 <>
-                <p
-                  key={item._id}
-                  className="text-gray-400 mb-8 text-sm md:text-base"
+                  <p
+                    key={item._id}
+                    className="text-gray-400 mb-8 text-sm md:text-base"
                   >
-                  {item.contentintro}
-                </p>
-                <div className="fixed bg-green-700 hover:bg-green-500 rounded right-4 text-md md:text-xl text-white">
-            <button
-              onClick={() => {
-                if(!user)
-                  navigate('/login')
-                else{
-                  navigate("/quiz",{
-                    state:{
-                      skillName:item.contentname,
-                      skillId:item.SkillId                    
-                    }
-                  })
-                }
-                console.log(item.SkillId)
-              }} 
-              className="w-full cursor-pointer text-left px-4 py-2.5 rounded-lg text-sm transition-all">Start Quiz Now</button>
-          </div>
-              </>
-              )
+                    {item.contentintro}
+                  </p>
+                  <div className="fixed bg-green-700 hover:bg-green-500 rounded right-4 text-md md:text-xl text-white">
+                    <button
+                      onClick={() => {
+                        if (!user) navigate("/login");
+                        else {
+                          navigate("/quiz", {
+                            state: {
+                              skillName: item.contentname,
+                              skillId: item.SkillId,
+                            },
+                          });
+                        }
+                        console.log(item.SkillId);
+                      }}
+                      className="w-full cursor-pointer text-left px-4 py-2.5 rounded-lg text-sm transition-all"
+                    >
+                      Start Quiz Now
+                    </button>
+                  </div>
+                </>
+              ),
           )}
 
           {data.map(
             (item) =>
               item.contentname === activeLang && (
                 <div key={item._id}>{renderContent(item.content)}</div>
-              )
+              ),
           )}
         </div>
       </main>

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../authcontext/AuthContext";
 import { useNavigate } from "react-router-dom";
 import API from "../api/api";
@@ -21,7 +21,6 @@ export default function Navbar() {
     navigate("/", { replace: true });
     window.location.reload();
   };
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,7 +62,6 @@ export default function Navbar() {
   return (
     <nav className="bg-black/95 fixed w-full z-20 top-0 border-b border-white/10 print:hidden">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-
         {/* Logo */}
         <a href="/" className="flex items-center space-x-2">
           <span className="text-xl font-semibold text-white">

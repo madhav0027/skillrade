@@ -8,7 +8,7 @@ import {
   LogIn,
   Mail,
   Lock,
-  Chrome,     // placeholder for Google (no official Google icon in lucide)
+  Chrome, // placeholder for Google (no official Google icon in lucide)
   Github,
   AlertCircle,
 } from "lucide-react";
@@ -129,7 +129,9 @@ export default function Login() {
               <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-gray-900 text-gray-500">or continue with</span>
+              <span className="px-4 bg-gray-900 text-gray-500">
+                or continue with
+              </span>
             </div>
           </div>
 
@@ -164,7 +166,7 @@ export default function Login() {
 
           {/* Register link */}
           <p className="mt-8 text-center text-gray-400 text-sm">
-            Don't have an account?{" "}
+            Don&#39;t have an account?{" "}
             <button
               onClick={() => navigate("/register")}
               className="text-green-400 hover:text-green-300 font-medium transition-colors"

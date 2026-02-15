@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 
 // Assuming you have lucide-react installed → npm install lucide-react
-import { 
-  LogIn, 
-  UserPlus, 
-  Mail, 
-  Lock, 
-  User, 
-  Chrome,          // we'll use this as Google placeholder
-  Github 
+import {
+  UserPlus,
+  Mail,
+  Lock,
+  User,
+  Chrome, // we'll use this as Google placeholder
+  Github,
 } from "lucide-react";
 
 export default function Register() {
@@ -157,7 +156,9 @@ export default function Register() {
               <div className="w-full border-t border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-gray-900 text-gray-500">or continue with</span>
+              <span className="px-4 bg-gray-900 text-gray-500">
+                or continue with
+              </span>
             </div>
           </div>
 

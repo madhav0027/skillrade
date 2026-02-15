@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, Info } from "lucide-react";
@@ -33,7 +33,6 @@ const About = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black px-4 py-12 flex items-center justify-center">
       <div className="w-full max-w-5xl space-y-12">
-
         {/* About Section */}
         <section className="bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 md:p-12 shadow-2xl shadow-black/40 text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-600/20">
@@ -46,8 +45,11 @@ const About = () => {
 
           <p className="text-gray-400 text-base md:text-lg leading-relaxed">
             <span className="font-semibold text-white">Skillrade</span> is a
-            platform to <span className="text-green-400 font-medium">learn and earn credits</span> by
-            exchanging skills with others. Our mission is to build a strong,
+            platform to{" "}
+            <span className="text-green-400 font-medium">
+              learn and earn credits
+            </span>{" "}
+            by exchanging skills with others. Our mission is to build a strong,
             collaborative community where people teach, learn, grow together,
             and unlock new opportunities through knowledge sharing.
           </p>

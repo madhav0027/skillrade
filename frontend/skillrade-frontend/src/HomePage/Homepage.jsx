@@ -1,16 +1,11 @@
 // src/App.jsx
-import { useState } from 'react';
-import { 
-  Code2, 
-  BookOpen, 
-  Terminal, 
-  ChevronRight 
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+
+import React from "react";
+import { Code2, BookOpen, Terminal, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
-
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div>
       {/* ─── HERO SECTION ─────────────────────────────────────────────── */}
@@ -20,12 +15,15 @@ function HomePage() {
             Learn to Code <span className="text-green-500">for Free</span>
           </h1>
           <p className="mt-5 text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
-            Tutorials, thousands of coding problems, structured courses, 
+            Tutorials, thousands of coding problems, structured courses,
             technical interview experiences, and much more — all in one place.
           </p>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button onClick={() => navigate('/Dashboard')} className="group flex items-center gap-2 rounded-lg bg-blue-500 px-7 py-3.5 font-semibold text-white hover:bg-green-700 transition-all">
+            <button
+              onClick={() => navigate("/Dashboard")}
+              className="group flex items-center gap-2 rounded-lg bg-blue-500 px-7 py-3.5 font-semibold text-white hover:bg-green-700 transition-all"
+            >
               Start Learning
               <ChevronRight className="group-hover:translate-x-1 transition-transform" />
             </button>
@@ -36,15 +34,21 @@ function HomePage() {
       {/* ─── QUICK ACCESS CARDS ──────────────────────────────────────── */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-5 grid gap-6 md:grid-cols-3">
-
           <div className="group rounded-xl border border-gray-800 bg-gray-900/40 p-7 hover:border-green-700/60 transition-all hover:shadow-xl hover:shadow-green-950/20">
             <div className="mb-4 inline-block rounded-lg bg-green-900/40 p-3">
               <BookOpen className="h-7 w-7 text-green-400" />
             </div>
-            <h3 className="text-xl text-white font-bold mb-2">Tutorials & Articles</h3>
-            <p className="text-gray-400">Well-explained content on Programming language...</p>
-            <a href="/learn" className="mt-4 inline-flex items-center text-green-400 hover:text-green-300">
-              Explore → 
+            <h3 className="text-xl text-white font-bold mb-2">
+              Tutorials & Articles
+            </h3>
+            <p className="text-gray-400">
+              Well-explained content on Programming language...
+            </p>
+            <a
+              href="/learn"
+              className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
+            >
+              Explore →
             </a>
           </div>
 
@@ -54,7 +58,10 @@ function HomePage() {
             </div>
             <h3 className="text-xl text-white font-bold mb-2">Quiz Problems</h3>
             <p className="text-gray-400">3500+ quiz problems with solutions.</p>
-            <a href="#" className="mt-4 inline-flex items-center text-green-400 hover:text-green-300">
+            <a
+              href="#"
+              className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
+            >
               Start Solving →
             </a>
           </div>
@@ -63,13 +70,20 @@ function HomePage() {
             <div className="mb-4 inline-block rounded-lg bg-green-900/40 p-3">
               <Code2 className="h-7 w-7 text-green-400" />
             </div>
-            <h3 className="text-xl text-white font-bold mb-2">Structured Courses</h3>
-            <p className="text-gray-400">Complete roadmaps: DSA, Full Stack, Android, Competitive Programming...</p>
-            <a href="#" className="mt-4 inline-flex items-center text-green-400 hover:text-green-300">
+            <h3 className="text-xl text-white font-bold mb-2">
+              Structured Courses
+            </h3>
+            <p className="text-gray-400">
+              Complete roadmaps: DSA, Full Stack, Android, Competitive
+              Programming...
+            </p>
+            <a
+              href="#"
+              className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
+            >
               Browse Courses →
             </a>
           </div>
-
         </div>
       </section>
 
@@ -77,9 +91,10 @@ function HomePage() {
 
       {/* Footer placeholder */}
       <footer className="border-t border-gray-800 bg-gray-950 py-12 text-center text-gray-500 text-sm">
-        <p>© 2026 Skillrade - Pathak's Private Limited, All rights reserved</p>
+        <p>
+          © 2026 Skillrade - Pathak&pos;s Private Limited, All rights reserved
+        </p>
       </footer>
-
     </div>
   );
 }

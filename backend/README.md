@@ -3,7 +3,7 @@
 Things i should done after i think project mvp is done :
 
 1. Basic Sanity Checks
-    -npm install[]
+    -npm install[x]
     [
         Make sure:
         -No missing dependencies
@@ -12,7 +12,7 @@ Things i should done after i think project mvp is done :
     ]
 2. Backend (Node.js) Tests
     1️⃣ Start the Server
-        -npm start[]
+        -npm start[x]
         [
             Check:
                 -Server starts without errors
@@ -21,7 +21,7 @@ Things i should done after i think project mvp is done :
         ]
     2️⃣ Test API Endpoints
         You can test using:
-            -Postman/Insomnia[]
+            -Postman/Insomnia[x]
             [
                 Test:
                 -GET routes
@@ -41,10 +41,10 @@ Things i should done after i think project mvp is done :
                 -No async errors
             ]
 3. Linting & Code Quality
-        Eslint config and test[]
-        Prettier config and test[]
-        npm run lint[]
-        npm run format[]
+        Eslint config and test[x]
+        Prettier config and test[x]
+        npm run lint[x]
+        npm run format[x]
         [
             Fix:
             -Syntax issues
@@ -55,8 +55,8 @@ Things i should done after i think project mvp is done :
 
 5. Environment Variables Check
     Make sure:
-        .env is NOT pushed to GitHub[]
-        .env.example exists[]
+        .env is NOT pushed to GitHub[x]
+        .env.example exists[x]
     All required variables are documented
 
 6. GitHub CI (Recommended)
@@ -71,9 +71,9 @@ Things i should done after i think project mvp is done :
 
 Security Check :
     🔐 Security Checklist
-        -Passwords hashed[]
-        -JWT expiration set (if using auth)[]
+        -Passwords hashed[x]
+        -JWT expiration set (if using auth)[x]
         -No hardcoded secrets[]
-        -Input validation implemented[]
+        -Input validation implemented[x]
         -Helmet middleware used (if Express)[]
         -Rate limiting implemented[]

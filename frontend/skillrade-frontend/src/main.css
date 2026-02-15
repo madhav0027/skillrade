@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /* Reset defaults & force full height */
-html, body {
-  height: 100%;          /* or min-height: 100vh; */
+html,
+body {
+  height: 100%; /* or min-height: 100vh; */
   margin: 0;
   padding: 0;
 }

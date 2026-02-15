@@ -1,13 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowRight,
-  Printer,
-  User,
-  Award,
-  PlusCircle,
-} from "lucide-react";
+import { ArrowRight, Printer, User, Award, PlusCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [user, setuser] = useState({});
@@ -36,7 +30,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black px-4 py-12">
-
       {/* Print Button */}
       <div className="fixed top-25 right-6 print:hidden">
         <button
@@ -49,7 +42,6 @@ export default function Dashboard() {
 
       {/* Dashboard Card */}
       <div className="max-w-4xl mx-auto bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 md:p-10 shadow-2xl shadow-black/40">
-
         {/* Header */}
         <header className="flex justify-between items-center border-b border-gray-800 pb-6 mb-8">
           <div>
@@ -97,9 +89,7 @@ export default function Dashboard() {
 
           {skills.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-300 text-lg">
-                No skills added yet
-              </p>
+              <p className="text-gray-300 text-lg">No skills added yet</p>
               <p className="text-gray-500 mt-2">
                 Upgrade your skills and track progress 🚀
               </p>
@@ -146,9 +136,7 @@ export default function Dashboard() {
                     />
                   </div>
 
-                  <p className="text-xs text-gray-500 mt-1">
-                    proficiency
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">proficiency</p>
                 </div>
               ))}
 
@@ -173,9 +161,7 @@ export default function Dashboard() {
           </div>
 
           {user.qualification?.length === 0 ? (
-            <p className="text-gray-400">
-              No qualifications added yet
-            </p>
+            <p className="text-gray-400">No qualifications added yet</p>
           ) : (
             <div className="space-y-2">{renderContent(user.qualification)}</div>
           )}

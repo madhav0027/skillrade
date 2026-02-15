@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function VerifyEmail () {
+export default function VerifyEmail() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
@@ -27,8 +27,8 @@ export default function VerifyEmail () {
         </h1>
 
         <p className="text-gray-600 mb-6">
-          We’ve sent a verification link to your email address.
-          Please click the link to activate your account.
+          We’ve sent a verification link to your email address. Please click the
+          link to activate your account.
         </p>
 
         <button
@@ -44,4 +44,4 @@ export default function VerifyEmail () {
       </div>
     </div>
   );
-};
+}

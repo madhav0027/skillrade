@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import API from "../api/api";
 import { Camera, Save, UserCog } from "lucide-react";
 
@@ -95,7 +95,6 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black px-4 py-12 flex items-center justify-center">
       <div className="w-full max-w-3xl bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 md:p-10 shadow-2xl shadow-black/40">
-
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <UserCog className="text-green-400" />

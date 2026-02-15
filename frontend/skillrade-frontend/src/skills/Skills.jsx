@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // fixed: removed unused "replace"
 import API from "../api/api";
 
@@ -57,7 +57,7 @@ const SkillsSelector = () => {
   // Get unique domains
   const uniqueDomains = skills.filter(
     (item, index, self) =>
-      index === self.findIndex((d) => d.domain === item.domain)
+      index === self.findIndex((d) => d.domain === item.domain),
   );
 
   // Filter skills by selected domain
@@ -70,8 +70,8 @@ const SkillsSelector = () => {
     "Web Development": Globe,
     "Data Science": Database,
     "Machine Learning": Brain,
-    "Programming": Code,
-    "DevOps": Cpu,
+    Programming: Code,
+    DevOps: Cpu,
     // add more as needed
   };
 
@@ -103,8 +103,7 @@ const SkillsSelector = () => {
                 <p className="text-gray-500">Loading domains...</p>
               ) : (
                 uniqueDomains.map((domainItem) => {
-                  const DomainIcon =
-                    domainIcons[domainItem.domain] || Brain;
+                  const DomainIcon = domainIcons[domainItem.domain] || Brain;
                   return (
                     <button
                       key={domainItem.domain}
@@ -128,7 +127,9 @@ const SkillsSelector = () => {
           {/* Skills Grid */}
           <div className="mb-10">
             <h3 className="text-xl font-semibold text-gray-200 mb-5 text-center md:text-left">
-              {selectedDomainId ? `Skills in ${selectedDomainId}` : "Select a domain to see skills"}
+              {selectedDomainId
+                ? `Skills in ${selectedDomainId}`
+                : "Select a domain to see skills"}
             </h3>
 
             {selectedDomainId ? (
