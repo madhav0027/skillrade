@@ -13,6 +13,11 @@ const LearnSchema = mongoose.Schema(
         content:{
             type:String,
             required:true
+        },
+        skillId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Skill",
+            required:true
         }
     }
 )

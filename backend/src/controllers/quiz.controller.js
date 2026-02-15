@@ -22,14 +22,33 @@ exports.getuserbyskill = async (req,res) => {
 
         const userid = req.user.userid;
 
+        const progress = await UserSkill.findOne({userId:userid,SkillId:SkillId});
+
+        if(progress.progress >= 50){
+            
+            const levelupdate = await UserSkill.findOneAndUpdate({userId:userid,SkillId:SkillId},{
+                level:"advanced"
+            })
+        }else
+        if(progress.progress >= 10){
+            
+            const levelupdate = await UserSkill.findOneAndUpdate({userId:userid,SkillId:SkillId},{
+                level:"intermediate"
+            })
+        }
+
         const passedAttempts = await Quizattempt.find({
             userId:userid,
             passed:true
         }).select("quizId")
 
+        const userskillevel = await UserSkill.find({userId:userid})
+            .select('level')
+
         const passedQuiz = passedAttempts.map(q => q.quizId)
 
-        const quizbyskill = await Quiz.find({SkillId,_id:{$nin:passedQuiz}})
+
+        const quizbyskill = await Quiz.find({SkillId,level:userskillevel[0].level,_id:{$nin:passedQuiz}})
         res.status(200).json(quizbyskill);
     } catch (error) {
         if(error)
@@ -41,15 +60,16 @@ exports.submitquiz = async (req,res) => {
     try {
         const {_id,answer} = req.body;
         const userId = req.user.userid;
-        
+        let passed = false;
         const quiz = await Quiz.findOne({_id});
 
         if(!quiz)
             res.status(404).json({message:"Quiz not Found!!"});
 
             for(i=0; i< quiz.questions.length;i++){
-                if(answer[i] === quiz.questions[i].correctans)
+                if(answer.trim().toLowerCase() === quiz.questions[i].correctans.trim().toLowerCase()){
                     passed=true;
+                }
             }
 
         const alreadypassed = await Quizattempt.findOne({userId,quizId:_id,passed:true})        

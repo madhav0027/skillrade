@@ -18,6 +18,8 @@ import HomePage from './HomePage/Homepage'
 
 function App() {
 
+  const token = localStorage.getItem("token")
+
   return (
     <div className='min-h-screen flex flex-col'>
       <AuthProvider>
@@ -25,15 +27,15 @@ function App() {
         <Navbar/>
         <main className='mt-18'>
           <Routes>
+            <Route path='/login' element={token  ? <Dashboard/> : <Login/>} />
+            <Route path='/register' element={token ? <Dashboard/> :<Register/>}/>
             <Route path="/" element={<HomePage/>} />
             <Route path="/settings" element={<Settings/>}/>
             <Route path='/community' element={<Community/>} />
             <Route path='/quiz' element={<Quiz/>}/>
             <Route path='/learn' element={<Learn/>}/>
             <Route path='/Dashboard' element={<Dashboard/>}/>
-            <Route path='/login' element={<Login/>} />
             <Route path='/skills' element={<SkillSelector/>}/>
-            <Route path='/register' element={<Register/>}/>
             <Route path='/verify' element={<VerifyEmail/>}/>
             <Route path='/about' element={<About/>}/>
             <Route path='/thank-you' element={<ThankYou/>}/>

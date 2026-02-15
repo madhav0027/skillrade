@@ -18,13 +18,14 @@ app.use(morgan('tiny'))
 app.use(express.json());
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin || origin.endsWith(".vercel.app")) {
-        cb(null, true)
-      } else {
-        cb(new Error("Not allowed by CORS"))
-      }
-    }
+    origin:"*"
+    // origin: (origin, cb) => {
+    //   if (!origin || origin.endsWith(".vercel.app")) {
+    //     cb(null, true)
+    //   } else {
+    //     cb(new Error("Not allowed by CORS"))
+    //   }
+    // }
   })
 )
 

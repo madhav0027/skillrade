@@ -1,51 +1,89 @@
 import { useState, useEffect } from "react";
 import API from "../api/api";
 import { Menu, X, BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Simple markdown renderer (basic)
 const renderContent = (text) => {
-  return text.split("\n").map((line, i) => {
-    if (line.startsWith("## ")) {
-      return (
-        <h2
-          key={i}
-          className="text-xl md:text-2xl font-semibold mt-8 text-white"
-        >
-          {line.replace("## ", "")}
-        </h2>
-      );
-    }
+const lines = text.split("\n");
+let elements = [];
+let codeBuffer = [];
+let inCodeBlock = false;
 
-    if (line.startsWith("```")) return null;
-
-    if (
-      line.trim().startsWith("#include") ||
-      line.includes("console.log") ||
-      line.includes("print(")
-    ) {
-      return (
+lines.forEach((line, i) => {
+  // Toggle code block
+  if (line.trim().startsWith("```")) {
+    if (inCodeBlock) {
+      // closing ```
+      elements.push(
         <pre
-          key={i}
-          className="bg-black/60 border border-gray-800 text-green-400 p-4 rounded-xl mt-4 text-xs md:text-sm overflow-x-auto"
+          key={`code-${i}`}
+          className="bg-black/60 border border-gray-800 text-white p-4 rounded-xl mt-4 text-xs md:text-sm overflow-x-auto"
         >
-          {line}
+          {codeBuffer.join("\n")}
         </pre>
       );
+      codeBuffer = [];
+      inCodeBlock = false;
+    } else {
+      // opening ```
+      inCodeBlock = true;
     }
+    return;
+  }
 
-    return (
-      <p key={i} className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed">
-        {line}
-      </p>
+  // Inside code block → just collect
+  if (inCodeBlock) {
+    codeBuffer.push(line);
+    return;
+  }
+
+  // Heading
+  if (line.startsWith("## ")) {
+    elements.push(
+      <h2
+        key={`h-${i}`}
+        className="text-xl md:text-2xl font-semibold mt-8 text-white"
+      >
+        {line.slice(3)}
+      </h2>
     );
-  });
-};
+    return;
+  }
+
+  if (line.includes("` ")) {
+    elements.push(
+      <h2
+        key={`h-${i}`}
+        className="text-xl md:text-2xl font-semibold mt-8 text-white"
+      >
+        {line.slice(3)}
+      </h2>
+    );
+    return;
+  }
+
+  // Normal paragraph
+  elements.push(
+    <p
+      key={`p-${i}`}
+      className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed"
+    >
+      {line}
+    </p>
+  );
+});
+
+return elements;
+}
 
 const Learn = () => {
   const [activeLang, setActiveLang] = useState("");
   const [search, setSearch] = useState("");
   const [data, setData] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const [user,setuser] = useState(localStorage?.getItem("token"));
 
   useEffect(() => {
     API.get("/learn").then((res) => {
@@ -140,15 +178,35 @@ const Learn = () => {
             {activeLang}
           </h1>
 
+
           {data.map(
             (item) =>
               item.contentname === activeLang && (
+                <>
                 <p
                   key={item._id}
                   className="text-gray-400 mb-8 text-sm md:text-base"
-                >
+                  >
                   {item.contentintro}
                 </p>
+                <div className="fixed bg-green-700 hover:bg-green-500 rounded right-4 text-md md:text-xl text-white">
+            <button
+              onClick={() => {
+                if(!user)
+                  navigate('/login')
+                else{
+                  navigate("/quiz",{
+                    state:{
+                      skillName:item.contentname,
+                      skillId:item.SkillId                    
+                    }
+                  })
+                }
+                console.log(item.SkillId)
+              }} 
+              className="w-full cursor-pointer text-left px-4 py-2.5 rounded-lg text-sm transition-all">Start Quiz Now</button>
+          </div>
+              </>
               )
           )}
 
