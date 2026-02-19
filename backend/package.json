@@ -8,7 +8,7 @@
     "dev": "nodemon src/index.js",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test":"jest"
+    "test":"jest --detectOpenHandles --forceExit"  
   },
   "author": "",
   "license": "ISC",
