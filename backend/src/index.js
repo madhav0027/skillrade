@@ -43,13 +43,4 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(PORT, (err) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-
-  console.log("SERVER RUNNING IN PORT" + PORT);
-});
-
 module.exports = app;
