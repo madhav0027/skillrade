@@ -19,12 +19,17 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install
+        working-directory: backend
 
       - name: Run tests
         run: npm test
-      
+        working-directory: backend
+   
       - name: Run eslint
         run: npm run lint
-      
+        working-directory: backend
+        
       - name: Run Prettier
         run : npm run format
+        working-directory: backend
+        
