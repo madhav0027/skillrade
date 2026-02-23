@@ -11,8 +11,6 @@ const path = require("path");
 const morgan = require("morgan");
 const app = express();
 
-const PORT = process.env.PORT || 5000;
-
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 app.use(morgan("tiny"));
 app.use(express.json());

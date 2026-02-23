@@ -1,6 +1,6 @@
-const app = require('./index')
+const app = require("./index")
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, (err) => {
   if (err) {
@@ -10,4 +10,3 @@ app.listen(PORT, (err) => {
 
   console.log("SERVER RUNNING IN PORT" + PORT);
 });
-
