@@ -135,8 +135,8 @@ export default function Dashboard() {
                       style={{ width: `${us.progress}%` }}
                     />
                   </div>
-
-                  <p className="text-xs text-gray-500 mt-1">proficiency</p>
+                  <p className="text-sm text-white mt-1">{us.level}</p>                  
+                  <p className="text-xs text-gray-500 mt-1">proficiency</p>                  
                 </div>
               ))}
 
