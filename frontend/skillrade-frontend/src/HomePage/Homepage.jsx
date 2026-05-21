@@ -45,7 +45,7 @@ function HomePage() {
               Well-explained content on Programming language...
             </p>
             <a
-              href="/learn"
+              href="/articles"
               className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
             >
               Explore →
@@ -59,7 +59,7 @@ function HomePage() {
             <h3 className="text-xl text-white font-bold mb-2">Quiz Problems</h3>
             <p className="text-gray-400">3500+ quiz problems with solutions.</p>
             <a
-              href="#"
+              href="/quizlist"
               className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
             >
               Start Solving →
@@ -78,7 +78,7 @@ function HomePage() {
               Programming...
             </p>
             <a
-              href="#"
+              href="/course"
               className="mt-4 inline-flex items-center text-green-400 hover:text-green-300"
             >
               Browse Courses →

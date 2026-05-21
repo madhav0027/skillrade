@@ -14,43 +14,48 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.user = async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) res.status(401).json({ message: "Failed to Fetch !!" });
-
-  const payload = jwt.verify(token, process.env.JWT_SECRET);
-
-  const userId = payload.userid;
-  const user = await User.findOne({ _id: userId }).select("-password");
+  console.log(req.user)
+  console.log(req.cookies)
+  const user = await User.findById(req.user.userId).select("-password");
   res.json({
     username: user.username,
     email: user.email,
-    profilepic: "http://localhost:5000" + user.profilepic,
+    profilepic: user.profilepic,
     qualification: user.qualification,
   });
 };
 
 exports.userupdate = async (req, res) => {
-  const userId = req.user.userid;
+  try {
+    const userId = req.user.userId;
 
-  const { username, qualification } = req.body;
-  let profile;
+    const { qualification } = req.body;
 
-  if (req.file) profile = `/uploads/${req.file.filename}`;
+    console.log(req.file);
 
-  await User.findOneAndUpdate(
-    { _id: userId },
-    {
-      username: username,
-      profilepic: profile,
-      qualification: qualification,
-    },
-  );
+    const updateData = {};
 
-  res.status(200).json({
-    status: "DONE",
-    message: "User has been Updated",
-  });
+    if (qualification && qualification.trim().length > 0) {
+      updateData.qualification = qualification.trim();
+    }
+
+    if (req.file) {
+      updateData.profilepic = `${process.env.R2_PUBLIC_URL}/${req.file.key}`;
+    }
+    await User.findByIdAndUpdate(userId, updateData);
+
+    res.status(200).json({
+      status: "DONE",
+      message: "User has been Updated",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "FAILED",
+      message: error.message,
+    });
+  }
 };
 
 exports.userfeedback = async (req, res) => {

@@ -7,33 +7,32 @@ const skillroutes = require("./routes/skill.routes");
 const quizroutes = require("./routes/quiz.routes");
 const learnroutes = require("./routes/learn.routes");
 const userroutes = require("./routes/user.routes");
+const courseroutes = require("./routes/course.routes");
+const cookieparser = require('cookie-parser');
 const path = require("path");
 const morgan = require("morgan");
 const app = express();
 
+
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 app.use(morgan("tiny"));
 app.use(express.json());
-app.use(
-  cors({
-    origin: "*",
-    // origin: (origin, cb) => {
-    //   if (!origin || origin.endsWith(".vercel.app")) {
-    //     cb(null, true)
-    //   } else {
-    //     cb(new Error("Not allowed by CORS"))
-    //   }
-    // }
-  }),
-);
+app.use(cookieparser())
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials:true
+}));
+
+
+connection();
+
 
 app.use("/api/auth", authroutes);
+app.use("/api/user", userroutes);
 app.use("/api/skill", skillroutes);
 app.use("/api/quizzes", quizroutes);
 app.use("/api/learn", learnroutes);
-app.use("/api/user", userroutes);
-
-connection();
+app.use("/api/course", courseroutes);
 
 app.get("/", (req, res) => {
   res.json({

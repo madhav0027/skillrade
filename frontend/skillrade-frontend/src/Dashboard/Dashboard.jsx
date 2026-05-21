@@ -2,23 +2,16 @@ import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Printer, User, Award, PlusCircle } from "lucide-react";
+import { useAuth } from "../authcontext/AuthContext";
 
 export default function Dashboard() {
-  const [user, setuser] = useState({});
+  const {user} = useAuth()
   const [skills, setskills] = useState([]);
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      API.get("/skill/myskill").then((res) => setskills(res.data));
-
-      API.get("/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((res) => setuser(res.data));
-    }
+      API.get("api/skill/myskill").then((res) => setskills(res.data));
+      console.log(skills)
   }, []);
 
   const renderContent = (text) =>
@@ -46,7 +39,7 @@ export default function Dashboard() {
         <header className="flex justify-between items-center border-b border-gray-800 pb-6 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">
-              {user.username?.length > 0
+              {user?.username.length > 0
                 ? `Welcome, ${user.username}`
                 : "Welcome"}
             </h1>
@@ -57,7 +50,7 @@ export default function Dashboard() {
                 : "Start building your skill profile"}
             </p>
 
-            {user.credits > 0 && (
+            {user?.credits > 0 && (
               <p className="mt-2 text-green-400 font-medium">
                 Credits: {user.credits}
               </p>
@@ -68,7 +61,7 @@ export default function Dashboard() {
           <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-700">
             <img
               src={
-                user.profilepic?.length > 0
+                user?.profilepic.length > 0
                   ? user.profilepic
                   : "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffreesvg.org%2Fstorage%2Fimg%2Fthumb%2Fabstract-user-flat-3.png"
               }
@@ -95,7 +88,7 @@ export default function Dashboard() {
               </p>
 
               <button
-                onClick={() => navigate("/login", { replace: true })}
+                onClick={() => user ?  navigate("/skills", { replace: true }) : navigate("/",{replace:true})}
                 className="mt-6 px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition"
               >
                 Start Now
@@ -114,12 +107,7 @@ export default function Dashboard() {
                       <span>{us.status}</span>
                       <button
                         onClick={() =>
-                          navigate("/quiz", {
-                            state: {
-                              skillId: us.SkillId._id,
-                              skillName: us.SkillId.name,
-                            },
-                          })
+                          navigate("/quizlist", )
                         }
                         className="p-2 rounded-full bg-green-600/20 hover:bg-green-600/30 transition"
                       >
@@ -160,10 +148,10 @@ export default function Dashboard() {
             </h2>
           </div>
 
-          {user.qualification?.length === 0 ? (
+          {user?.qualification?.length === 0 ? (
             <p className="text-gray-400">No qualifications added yet</p>
           ) : (
-            <div className="space-y-2">{renderContent(user.qualification)}</div>
+            <div className="space-y-2">{renderContent(user?.qualification)}</div>
           )}
 
           <button

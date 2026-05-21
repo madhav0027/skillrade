@@ -2,6 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const crypto = require('crypto')
+const { generateAccessToken, generateRefreshToken } = require("../utils/generatetoken");
 
 //MailSetup
 
@@ -17,26 +19,24 @@ const transporter = nodemailer.createTransport({
 
 exports.register = async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { name, password, email } = req.body;
+    console.log(name)
 
-    if (!username || !password || !email)
-      return res.status(400).json({ message: "All Fields are Required!!!" });
-
-    //Check if user Already Exist
     const existinguser = await User.findOne({ email });
     if (existinguser)
       return res.status(409).json({ message: "User already Exist!!" });
 
     const hashedpassword = await bcrypt.hash(password, 12);
 
-    const mailverify = jwt.sign({ usermail: email }, process.env.MAIL_SECRET, {
-      expiresIn: "15d",
-    });
+    const verificationToken = await crypto.randomBytes(32).toString("hex");
+    console.log(verificationToken);
 
     await User.create({
-      username: username,
+      username: name,
       password: hashedpassword,
       email: email,
+      verificationToken:verificationToken,
+      verifyTokenExpiry:Date.now() + 1000 * 60 * 60 // 1 hour
     });
 
     const mailoptions = {
@@ -44,13 +44,13 @@ exports.register = async (req, res) => {
       to: email,
       subject: "Skillrade Email Verification",
       text: `Please Click In this URL To verify your email 
-                    http://localhost:5000/api/auth/verify?token=${mailverify}`,
+                    ${process.env.SERVER_URL}/api/auth/verify?token=${verificationToken}`,
     };
 
     await transporter.sendMail(mailoptions);
 
     res.status(201).json({
-      message: "User Created Successfully",
+      message: "Registered SucessFully! Check your email to verify.",
     });
   } catch (err) {
     if (err) {
@@ -61,69 +61,137 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.mail = async (req, res) => {
+exports.verify = async (req, res) => {
   const token = req.query.token;
-
-  if (!token) res.status(404).json({ message: "Verify Token is Expired" });
-
-  const payload = jwt.verify(token, process.env.MAIL_SECRET);
+console.log(token)
 
   try {
-    const isverified = await User.findOne({ email: payload.usermail });
-    if (isverified.isverifed)
-      res.status(401).json({ message: "User Already Verified!!" });
+    const user = await User.findOne({
+      verificationToken:req.query.token,
+    })
 
-    await User.findOneAndUpdate(
-      { email: payload.usermail },
-      { isverifed: true },
-    );
+    console.log(user)
+
+    if (!user) return res.status(400).send("Invalid token");
+
+    user.isverifed = true;
+    user.verificationToken = null;
+    user.verifyTokenExpiry = null;
+
+    await user.save();
 
     res
       .status(200)
-      .send({ message: `Greetings Your ${payload.usermail} is Verified` });
+      .send({ message: `Greetings Your is Verified` });
   } catch (error) {
-    if (error) res.status(500).json({ message: "error in verifymail" });
+    if (error) res.status(500).json({ message: "error in verifymail"+error });
   }
 };
+
+exports.logout = async (req,res) => {
+
+    try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      await User.updateOne(
+        { refreshToken: refreshToken },
+        { $unset: { refreshToken: "" } }
+      );
+    }
+
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/"
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/"
+    });
+
+    return res.json({ message: "Logged out successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Logout failed" });
+  }
+}
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) return res.sendStatus(401);
+
+    const user = await User.findOne({ refreshToken: token });
+    if (!user) return res.sendStatus(403);
+
+    const jwt = require("jsonwebtoken");
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    const newAccessToken = generateAccessToken(decoded.userId);
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path:'/',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.json({ msg: "Token refreshed" });
+  } catch {
+    res.sendStatus(403);
+  }
+};
+
 
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password)
-      res.status(409).json({ message: "All Fields are Required!!" });
+    const user = await User.findOne({ email });
 
-    const Userexist = await User.findOne({ email });
+    if (!user) res.status(401).json({ message: "Invalid Credentials !!" });
 
-    if (!Userexist) res.status(401).json({ message: "Invalid Credentials !!" });
-
-    const isPasswordMatch = await bcrypt.compare(password, Userexist.password);
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch)
       res.status(401).json({ message: "Invalid Credentials !!" });
 
-    const token = jwt.sign(
-      {
-        userid: Userexist._id,
-        roles: Userexist.roles,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" },
-    );
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        path:'/',
+        maxAge: 15 * 60 * 1000,
+        });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path:'/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({
-      token,
-      Userexist: {
-        id: Userexist._id,
-        profilepic: Userexist.profilepic,
-        username: Userexist.username,
-        email: Userexist.email,
-        credits: Userexist.credits,
-        isverified: Userexist.isverifed,
-        roles: Userexist.roles,
+      user: {
+        id: user._id,
+        profilepic:user.profilepic,
+        name: user.username,
+        email: user.email,
       },
     });
+
   } catch (err) {
-    if (err)
-      res.status(500).json({ message: `"Internal Server Error" ${err}` });
+    res.status(500).json({ error: err.message });
   }
 };

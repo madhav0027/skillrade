@@ -19,12 +19,16 @@ const SkillsSelector = () => {
   const [selectedDomainId, setSelectedDomainId] = useState(null);
   const [selectedSkillId, setSelectedSkillId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [myskills,setmyskills] = useState([]);
 
   const navigate = useNavigate();
 
   // Fetch all skills/domains
   useEffect(() => {
-    API.get("/skill")
+
+    API.get("api/skill/myskill").then((res) => setmyskills(res.data));
+
+    API.get("/api/skill")
       .then((res) => setSkills(res.data))
       .catch((err) => {
         console.error("Failed to load skills", err);
@@ -42,10 +46,10 @@ const SkillsSelector = () => {
 
     try {
       setLoading(true);
-      await API.post("/skill/choose", {
+      await API.post("api/skill/choose", {
         SkillId: selectedSkillId,
       });
-      navigate("/", { replace: true });
+      navigate("/Dashboard", { replace: true });
     } catch (err) {
       console.error("Skill selection failed:", err);
       navigate("/login", { replace: true });
@@ -58,12 +62,18 @@ const SkillsSelector = () => {
   const uniqueDomains = skills.filter(
     (item, index, self) =>
       index === self.findIndex((d) => d.domain === item.domain),
+
+    console.log(myskills)
   );
 
   // Filter skills by selected domain
   const filteredSkills = selectedDomainId
-    ? skills.filter((skill) => skill?.domain === selectedDomainId)
-    : [];
+  ? skills.filter(
+      (skill) =>
+        skill?.domain === selectedDomainId &&
+        !myskills.some((s) => s.SkillId.name === skill?.name)
+    )
+  : [];
 
   // Optional: domain icon mapping (you can expand this)
   const domainIcons = {

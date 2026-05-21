@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import API from "../api/api";
 import { Camera, Save, UserCog } from "lucide-react";
+import { useAuth } from "../authcontext/AuthContext";
 
 const Settings = () => {
+  const { user } = useAuth();
   const [username, setUsername] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [password, setPassword] = useState("");
   const [qualifications, setQualifications] = useState("");
-  const [loading, setLoading] = useState(true);
   const [email, setemail] = useState("");
   const [fileselect, onFileSelect] = useState();
   const [preview, setPreview] = useState(null);
@@ -19,7 +20,7 @@ const Settings = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; 
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -32,43 +33,26 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await API.get("/user", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        const data = res.data;
-        setUsername(data.username);
-        setProfilePic(data.profilepic || "");
-        setemail(data.email);
-        setQualifications(data.qualification || "");
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+    if(user){
+      console.log(user)
+      setUsername(user.username)
+      setemail(user.email)
+      setProfilePic(user.profilepic)
+      setQualifications(user.qualification)
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formdata = new FormData();
-    formdata.append("username", username);
     formdata.append("qualification", qualifications);
     formdata.append("avatar", fileselect);
 
     try {
-      const res = await API.put("/user/update", formdata, {
+      const res = await API.put("api/user/update", formdata, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+          "Content-Type": "multipart/form-data",        },
       });
 
       if (res.data.status === "DONE") {
@@ -83,14 +67,6 @@ const Settings = () => {
       alert("Something went wrong");
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center text-gray-400">
-        Loading...
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black px-4 py-12 flex items-center justify-center">
@@ -159,7 +135,7 @@ const Settings = () => {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              disabled
               className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-gray-200 focus:outline-none focus:border-green-600"
             />
           </div>

@@ -25,6 +25,7 @@ exports.createskill = async (req, res) => {
 exports.getallSkills = async (req, res) => {
   try {
     const skills = await Skills.find();
+    console.log(skills)
     res.status(200).json(skills);
   } catch (error) {
     if (error) res.status(500).json({ message: "Failed to Fetch Skill" });
@@ -36,7 +37,7 @@ exports.getallSkills = async (req, res) => {
 exports.chooseSkill = async (req, res) => {
   try {
     const { SkillId } = req.body;
-    const userId = req.user.userid;
+    const userId = req.user.userId;
     const exist = await UserSkill.findOne({ SkillId, userId });
 
     if (exist) res.status(409).json({ message: "Skill already Selected" });
@@ -56,8 +57,9 @@ exports.chooseSkill = async (req, res) => {
 exports.getmyskills = async (req, res) => {
   try {
     const userskills = await UserSkill.find({
-      userId: req.user.userid,
+      userId: req.user.userId,
     }).populate("SkillId");
+    console.log(userskills)
     res.json(userskills);
   } catch (error) {
     if (error)

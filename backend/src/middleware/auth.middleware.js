@@ -1,17 +1,15 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  const token = req.cookies.accessToken;
 
-  if (!token) throw new Error("No Token Provide");
-  // res.status(401).json({message:"No Token Provide!!"})
+  if (!token) return res.status(401).json({ msg: "Unauthorized" });
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decode;
-    console.log(decode);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    req.user = decoded;
     next();
-  } catch (error) {
-    if (error) res.status(500).json({ message: "Internal Server Error" });
+  } catch {
+    return res.status(403).json({ msg: "Invalid token" });
   }
 };

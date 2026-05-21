@@ -1,11 +1,8 @@
 import "./App.css";
-import Login from "./auth/Login";
 import { AuthProvider } from "./authcontext/AuthContext";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Dashboard from "./Dashboard/Dashboard";
 import Navbar from "./Components/Navbar";
-import Register from "./auth/Register";
-import VerifyEmail from "./auth/VerifyEmail";
 import SkillSelector from "./skills/Skills";
 import SkillForm from "./skills/adminskill";
 import About from "./about/About";
@@ -16,6 +13,10 @@ import Settings from "./settings/Settings";
 import ThankYou from "./about/Thankyou";
 import HomePage from "./HomePage/Homepage";
 import React from "react";
+import CoursesSection from "./CourseSelection/CourseSection";
+import CourseViewer from "./CourseSelection/CourseViewer";
+import ArticlesPage from "./Articles/articles";
+import QuizList from "./quizlist/Quizlist";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -27,22 +28,17 @@ function App() {
           <Navbar />
           <main className="mt-18">
             <Routes>
-              <Route
-                path="/login"
-                element={token ? <Dashboard /> : <Login />}
-              />
-              <Route
-                path="/register"
-                element={token ? <Dashboard /> : <Register />}
-              />
               <Route path="/" element={<HomePage />} />
+              <Route path="/quizlist" element={<QuizList />} />
+              <Route path="/articles" element={<ArticlesPage/>}/>
+              <Route path="/course" element={<CoursesSection />} />
+              <Route path="/courses/:courseId" element={<CourseViewer />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/community" element={<Community />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="/Dashboard" element={<Dashboard />} />
               <Route path="/skills" element={<SkillSelector />} />
-              <Route path="/verify" element={<VerifyEmail />} />
               <Route path="/about" element={<About />} />
               <Route path="/thank-you" element={<ThankYou />} />
             </Routes>

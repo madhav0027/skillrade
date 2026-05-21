@@ -14,30 +14,31 @@ exports.createQuiz = async (req, res) => {
 };
 
 exports.getuserbyskill = async (req, res) => {
+
   try {
+
     const { SkillId } = req.params;
 
-    const userid = req.user.userid;
+    const userid = await req.user.userId;
 
-    const progress = await UserSkill.findOne({
-      userId: userid,
-      SkillId: SkillId,
-    });
+    console.log("userid "+userid + "skillid "+SkillId)
+    let progressDoc = await UserSkill.findOne({ userId: userid, SkillId:SkillId });
 
-    if (progress.progress >= 50) {
-      await UserSkill.findOneAndUpdate(
-        { userId: userid, SkillId: SkillId },
-        {
-          level: "advanced",
-        },
-      );
-    } else if (progress.progress >= 10) {
-      await UserSkill.findOneAndUpdate(
-        { userId: userid, SkillId: SkillId },
-        {
-          level: "intermediate",
-        },
-      );
+    console.log("progress"+progressDoc)
+
+    if (!progressDoc) {
+      return res.status(404).json({
+        message: "No skill progress found for this user.",
+      });
+    }
+
+    let newLevel = "beginner";
+    if (progressDoc.progress >= 50) newLevel = "advanced";
+    else if (progressDoc.progress >= 10) newLevel = "intermediate";
+
+    if (progressDoc.level !== newLevel) {
+      progressDoc.level = newLevel;
+      await progressDoc.save();
     }
 
     const passedAttempts = await Quizattempt.find({
@@ -45,27 +46,75 @@ exports.getuserbyskill = async (req, res) => {
       passed: true,
     }).select("quizId");
 
-    const userskillevel = await UserSkill.find({ userId: userid }).select(
-      "level",
+    const passedQuizIds = passedAttempts.map((q) => q.quizId);
+
+    // Get user's current skill level
+    const userSkills = await UserSkill.find({ userId: userid }).select(
+      "level SkillId"
     );
+    const userSkill = userSkills.find((s) => s.SkillId.toString() === SkillId);
 
-    const passedQuiz = passedAttempts.map((q) => q.quizId);
+    if (!userSkill) {
+      return res.status(404).json({
+        message: "Skill not found for this user.",
+      });
+    }
 
-    const quizbyskill = await Quiz.find({
+    // Fetch quizzes for this skill and level that user hasn't passed yet
+    const quizBySkill = await Quiz.find({
       SkillId,
-      level: userskillevel[0].level,
-      _id: { $nin: passedQuiz },
+      level: userSkill.level,
+      _id: { $nin: passedQuizIds },
     });
-    res.status(200).json(quizbyskill);
+
+    console.log(quizBySkill)
+
+    res.status(200).json(quizBySkill);
+
   } catch (error) {
     if (error) res.status(500).json({ message: "Can't Get User" });
+
+    console.log(error)
+  }
+};
+
+exports.getskillbyuser = async (req, res) => {
+
+  try {
+
+    const userid = await req.user.userid;
+
+
+    const passedAttempts = await Quizattempt.find({
+      userId: userid,
+      passed: false,
+    }).select("quizId");
+
+    const passedQuizIds = passedAttempts.map((q) => q.quizId);
+
+    // Get user's current skill level
+    const userSkills = await UserSkill.find({ userId: userid }).select(
+      "level SkillId"
+    );
+
+    // Fetch quizzes for this skill and level that user hasn't passed yet
+    const quizBySkill = await Quiz.find({
+      _id: { $nin: passedQuizIds },
+    });
+
+    res.status(200).json(quizBySkill);
+
+  } catch (error) {
+    if (error) res.status(500).json({ message: "Can't Get User" });
+
+    console.log(error)
   }
 };
 
 exports.submitquiz = async (req, res) => {
   try {
     const { _id, answer } = req.body;
-    const userId = req.user.userid;
+    const userId = await req.user.userId;
     let passed = false;
     const quiz = await Quiz.findOne({ _id });
 

@@ -1,5 +1,25 @@
 const mongoose = require("mongoose");
 
+const lessonProgressSchema = new mongoose.Schema({
+  lessonId: mongoose.Schema.Types.ObjectId,
+  watchedTime: { type: Number, default: 0 }, // seconds
+  completed: { type: Boolean, default: false },
+});
+
+const courseProgressSchema = new mongoose.Schema({
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+  },
+
+  lessons: [lessonProgressSchema],
+
+  completed: { type: Boolean, default: false },
+  certificateIssued: { type: Boolean, default: false },
+
+  enrolledAt: { type: Date, default: Date.now },
+});
+
 const User = new mongoose.Schema(
   {
     profilepic: {
@@ -40,6 +60,12 @@ const User = new mongoose.Schema(
     qualification: {
       type: String,
     },
+    verificationToken: String,
+    verifyTokenExpiry: Date,
+  
+    refreshToken: String,
+    courses: [courseProgressSchema],
+
   },
   { timestamps: true },
 );

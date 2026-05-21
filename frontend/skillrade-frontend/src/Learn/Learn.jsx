@@ -86,7 +86,7 @@ const Learn = () => {
   const [user] = useState(localStorage?.getItem("token"));
 
   useEffect(() => {
-    API.get("/learn").then((res) => {
+    API.get("api/learn").then((res) => {
       setData(res.data);
       if (res.data.length > 0) {
         setActiveLang(res.data[0].contentname);
