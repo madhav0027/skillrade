@@ -17,6 +17,7 @@ import CoursesSection from "./CourseSelection/CourseSection";
 import CourseViewer from "./CourseSelection/CourseViewer";
 import ArticlesPage from "./Articles/articles";
 import QuizList from "./quizlist/Quizlist";
+import LearnPost from "./Learn/LearnPost";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -28,6 +29,7 @@ function App() {
           <Navbar />
           <main className="mt-18">
             <Routes>
+              <Route path='/learnpost' element={<LearnPost/>}/>
               <Route path="/" element={<HomePage />} />
               <Route path="/quizlist" element={<QuizList />} />
               <Route path="/articles" element={<ArticlesPage/>}/>

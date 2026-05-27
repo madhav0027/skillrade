@@ -1,73 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import API from "../api/api";
-import { Menu, X, BookOpen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Menu, X, BookOpen, Code2, Cpu } from "lucide-react";
 
-// Simple markdown renderer (basic)
+const WEB_LANGUAGES = [
+  "javascript",
+  "typescript",
+  "php",
+  "html",
+  "css",
+  "react",
+  "node.js",
+];
+
+const SYSTEM_LANGUAGES = [
+  "c",
+  "c++",
+  "rust",
+  "go",
+  "zig",
+  "java",
+  "python",
+  "C#",
+  "Rust",
+  "go"
+];
+
 const renderContent = (text) => {
   const lines = text.split("\n");
+
   let elements = [];
   let codeBuffer = [];
   let inCodeBlock = false;
 
-  lines.forEach((line, i) => {
-    // Toggle code block
+  lines.forEach((line, index) => {
     if (line.trim().startsWith("```")) {
       if (inCodeBlock) {
-        // closing ```
         elements.push(
           <pre
-            key={`code-${i}`}
-            className="bg-black/60 border border-gray-800 text-white p-4 rounded-xl mt-4 text-xs md:text-sm overflow-x-auto"
+            key={`code-${index}`}
+            className="bg-black border border-gray-800 rounded-xl p-4 overflow-x-auto mt-5"
           >
-            {codeBuffer.join("\n")}
+            <code className="text-green-400 text-sm whitespace-pre-wrap">
+              {codeBuffer.join("\n")}
+            </code>
           </pre>,
         );
+
         codeBuffer = [];
         inCodeBlock = false;
       } else {
-        // opening ```
         inCodeBlock = true;
       }
+
       return;
     }
 
-    // Inside code block → just collect
     if (inCodeBlock) {
       codeBuffer.push(line);
       return;
     }
 
-    // Heading
     if (line.startsWith("## ")) {
       elements.push(
         <h2
-          key={`h-${i}`}
-          className="text-xl md:text-2xl font-semibold mt-8 text-white"
+          key={`heading-${index}`}
+          className="text-2xl font-bold text-white mt-8 mb-3"
         >
-          {line.slice(3)}
+          {line.replace("## ", "")}
         </h2>,
       );
+
       return;
     }
 
-    if (line.includes("` ")) {
-      elements.push(
-        <h2
-          key={`h-${i}`}
-          className="text-xl md:text-2xl font-semibold mt-8 text-white"
-        >
-          {line.slice(3)}
-        </h2>,
-      );
-      return;
-    }
-
-    // Normal paragraph
     elements.push(
       <p
-        key={`p-${i}`}
-        className="mt-3 text-gray-300 text-sm md:text-base leading-relaxed"
+        key={`paragraph-${index}`}
+        className="text-gray-300 leading-relaxed mt-3"
       >
         {line}
       </p>,
@@ -78,50 +87,86 @@ const renderContent = (text) => {
 };
 
 const Learn = () => {
+  const [data, setData] = useState([]);
   const [activeLang, setActiveLang] = useState("");
   const [search, setSearch] = useState("");
-  const [data, setData] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const [user] = useState(localStorage?.getItem("token"));
 
   useEffect(() => {
-    API.get("api/learn").then((res) => {
-      setData(res.data);
-      if (res.data.length > 0) {
-        setActiveLang(res.data[0].contentname);
+    const fetchLearningContent = async () => {
+      try {
+        const response = await API.get("/api/learn");
+
+        const filtered = response.data.filter((item) => {
+          const lang = item.contentname.toLowerCase();
+
+          return (
+            WEB_LANGUAGES.includes(lang) ||
+            SYSTEM_LANGUAGES.includes(lang)
+          );
+        });
+
+        setData(filtered);
+
+        if (filtered.length > 0) {
+          setActiveLang(filtered[0].contentname);
+        }
+      } catch (error) {
+        console.error("Failed to fetch learning content:", error);
       }
+    };
+
+    fetchLearningContent();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const filteredData = useMemo(() => {
+    return data.filter((item) =>
+      item.contentname
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    );
+  }, [data, search]);
+
+  const activeContent = data.find(
+    (item) => item.contentname === activeLang,
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex">
-      {/* 📱 Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-gray-900/80 backdrop-blur border-b border-gray-800 px-4 py-3 flex justify-between items-center">
-        <h1 className="font-semibold text-white text-lg truncate">
-          {activeLang}
+    <div className="min-h-screen flex bg-gradient-to-br from-black via-gray-950 to-gray-900">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-950/90 backdrop-blur border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+        <h1 className="text-white font-semibold truncate">
+          {activeLang || "Learn"}
         </h1>
+
         <button
           onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-lg bg-green-600/20 text-green-400"
+          className="p-2 rounded-lg bg-green-500/20 text-green-400"
         >
           <Menu size={20} />
         </button>
-      </div>
+      </header>
 
-      {/* Sidebar */}
       <aside
         className={`
-          fixed inset-0 z-50 md:static md:z-0
-          bg-gray-900/90 backdrop-blur-xl border-r border-gray-800
-          w-full md:w-80 p-6 overflow-y-auto
+          fixed md:static inset-0 z-50 md:z-0
+          w-full md:w-80
+          bg-gray-900/95 backdrop-blur-xl
+          border-r border-gray-800
+          overflow-y-auto
+          p-6
           ${sidebarOpen ? "block" : "hidden"} md:block
         `}
       >
-        {/* Mobile close */}
-        <div className="md:hidden flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Learn</h2>
+        <div className="flex md:hidden items-center justify-between mb-6">
+          <h2 className="text-white text-xl font-bold">
+            Learning Center
+          </h2>
+
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-400 hover:text-white"
@@ -130,92 +175,126 @@ const Learn = () => {
           </button>
         </div>
 
-        <div className="hidden md:flex items-center gap-2 mb-6">
+        <div className="hidden md:flex items-center gap-3 mb-6">
           <BookOpen className="text-green-400" />
-          <h2 className="text-xl font-bold text-white">Learn</h2>
+
+          <h2 className="text-white text-2xl font-bold">
+            Learning Center
+          </h2>
         </div>
 
-        {/* Search */}
         <input
           type="text"
-          placeholder="Search content..."
-          className="w-full mb-6 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-green-600"
+          placeholder="Search language..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            px-4 py-3
+            rounded-xl
+            bg-gray-800
+            border border-gray-700
+            text-gray-200
+            placeholder-gray-500
+            focus:outline-none
+            focus:border-green-500
+            mb-6
+          "
         />
 
-        <ul className="space-y-2">
-          {data
-            .filter((item) =>
-              item.contentname.toLowerCase().includes(search.toLowerCase()),
-            )
-            .map((item) => (
-              <li key={item._id}>
-                <button
-                  onClick={() => {
-                    setActiveLang(item.contentname);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all
-                    ${
-                      activeLang === item.contentname
-                        ? "bg-green-600/20 text-green-400 border border-green-600/40"
-                        : "text-gray-300 hover:bg-gray-800"
-                    }`}
-                >
-                  {item.contentname}
-                </button>
-              </li>
-            ))}
-        </ul>
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Code2 className="text-blue-400" size={18} />
+
+            <h3 className="text-blue-400 font-semibold">
+              Web Development
+            </h3>
+          </div>
+
+          <ul className="space-y-2">
+            {filteredData
+              .filter((item) =>
+                WEB_LANGUAGES.includes(
+                  item.contentname.toLowerCase(),
+                ),
+              )
+              .map((item) => (
+                <li key={item._id}>
+                  <button
+                    onClick={() => {
+                      setActiveLang(item.contentname);
+                      setSidebarOpen(false);
+                    }}
+                    className={`
+                      w-full text-left px-4 py-2.5 rounded-xl transition-all
+                      ${
+                        activeLang === item.contentname
+                          ? "bg-blue-500/20 border border-blue-500/30 text-blue-400"
+                          : "text-gray-300 hover:bg-gray-800"
+                      }
+                    `}
+                  >
+                    {item.contentname}
+                  </button>
+                </li>
+              ))}
+          </ul>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Cpu className="text-orange-400" size={18} />
+
+            <h3 className="text-orange-400 font-semibold">
+              System Programming
+            </h3>
+          </div>
+
+          <ul className="space-y-2">
+            {filteredData
+              .filter((item) =>
+                SYSTEM_LANGUAGES.includes(
+                  item.contentname.toLowerCase(),
+                ),
+              )
+              .map((item) => (
+                <li key={item._id}>
+                  <button
+                    onClick={() => {
+                      setActiveLang(item.contentname);
+                      setSidebarOpen(false);
+                    }}
+                    className={`
+                      w-full text-left px-4 py-2.5 rounded-xl transition-all
+                      ${
+                        activeLang === item.contentname
+                          ? "bg-orange-500/20 border border-orange-500/30 text-orange-400"
+                          : "text-gray-300 hover:bg-gray-800"
+                      }
+                    `}
+                  >
+                    {item.contentname}
+                  </button>
+                </li>
+              ))}
+          </ul>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 md:px-10 pt-24 md:pt-12 pb-12">
-        <div className="max-w-5xl mx-auto bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 md:p-10 shadow-2xl shadow-black/40">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">
-            {activeLang}
+      <main className="flex-1 overflow-y-auto px-4 md:px-10 pt-24 md:pt-10 pb-12">
+        <div className="max-w-5xl mx-auto bg-gray-900/70 border border-gray-800 backdrop-blur-xl rounded-3xl p-6 md:p-10 shadow-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            {activeContent?.contentname}
           </h1>
 
-          {data.map(
-            (item) =>
-              item.contentname === activeLang && (
-                <>
-                  <p
-                    key={item._id}
-                    className="text-gray-400 mb-8 text-sm md:text-base"
-                  >
-                    {item.contentintro}
-                  </p>
-                  <div className="fixed bg-green-700 hover:bg-green-500 rounded right-4 text-md md:text-xl text-white">
-                    <button
-                      onClick={() => {
-                        if (!user) navigate("/login");
-                        else {
-                          navigate("/quiz", {
-                            state: {
-                              skillName: item.contentname,
-                              skillId: item.SkillId,
-                            },
-                          });
-                        }
-                        console.log(item.SkillId);
-                      }}
-                      className="w-full cursor-pointer text-left px-4 py-2.5 rounded-lg text-sm transition-all"
-                    >
-                      Start Quiz Now
-                    </button>
-                  </div>
-                </>
-              ),
-          )}
+          <p className="text-gray-400 mb-8 leading-relaxed">
+            {activeContent?.contentintro}
+          </p>
 
-          {data.map(
-            (item) =>
-              item.contentname === activeLang && (
-                <div key={item._id}>{renderContent(item.content)}</div>
-              ),
-          )}
+          <div>
+            {activeContent?.content &&
+              renderContent(activeContent.content)}
+          </div>
         </div>
       </main>
     </div>

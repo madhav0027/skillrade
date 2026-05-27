@@ -16,7 +16,7 @@ exports.learn = async (req, res) => {
     res.status(200).json({ message: "New Learning Content is Added" });
   } catch (error) {
     if (error)
-      res.status(500).json({ message: "Failed to Add Learning Content" });
+      res.status(500).json({ message: "Failed to Add Learning Content" + error});
   }
 };
 
