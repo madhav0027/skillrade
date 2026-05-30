@@ -1,29 +1,78 @@
 import React, { useState, useEffect, useMemo } from "react";
 import API from "../api/api";
-import { Menu, X, BookOpen, Code2, Cpu } from "lucide-react";
+import {
+  Menu,
+  X,
+  BookOpen,
+  Code2,
+  Cpu,
+  Smartphone,
+  Database,
+  Cloud,
+  Gamepad2,
+  Blocks,
+} from "lucide-react";
 
-const WEB_LANGUAGES = [
-  "javascript",
-  "typescript",
-  "php",
-  "html",
-  "css",
-  "react",
-  "node.js",
-];
+// =========================
+// LANGUAGE CATEGORIES
+// =========================
 
-const SYSTEM_LANGUAGES = [
-  "c",
-  "c++",
-  "rust",
-  "go",
-  "zig",
-  "java",
-  "python",
-  "C#",
-  "Rust",
-  "go"
-];
+const LANGUAGE_CATEGORIES = {
+  Frontend: [
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "react",
+    "nextjs",
+  ],
+
+  Backend: [
+    "nodejs",
+    "php",
+    "python",
+    "java",
+    "go",
+  ],
+
+  Systems: [
+    "c",
+    "c++",
+    "rust",
+  ],
+
+  Database: [
+    "sql",
+    "mongodb",
+    "postgresql",
+  ],
+
+  GameDev: [
+    "unity",
+    "unreal-engine",
+    "c#",
+  ],
+
+  Web3: [
+    "solidity",
+    "rust",
+  ],
+};
+
+// =========================
+// CATEGORY ICONS
+// =========================
+
+const CATEGORY_ICONS = {
+  Frontend: <Code2 className="text-blue-400" size={18} />,
+  Backend: <BookOpen className="text-green-400" size={18} />,
+  Systems: <Cpu className="text-orange-400" size={18} />,
+  Mobile: <Smartphone className="text-pink-400" size={18} />,
+  Database: <Database className="text-cyan-400" size={18} />,
+  DevOps: <Cloud className="text-yellow-400" size={18} />,
+  GameDev: <Gamepad2 className="text-red-400" size={18} />,
+  Web3: <Blocks className="text-purple-400" size={18} />,
+};
 
 const renderContent = (text) => {
   const lines = text.split("\n");
@@ -97,14 +146,15 @@ const Learn = () => {
       try {
         const response = await API.get("/api/learn");
 
-        const filtered = response.data.filter((item) => {
-          const lang = item.contentname.toLowerCase();
+        const allLanguages = Object.values(
+          LANGUAGE_CATEGORIES,
+        ).flat();
 
-          return (
-            WEB_LANGUAGES.includes(lang) ||
-            SYSTEM_LANGUAGES.includes(lang)
-          );
-        });
+        const filtered = response.data.filter((item) =>
+          allLanguages.includes(
+            item.contentname.toLowerCase(),
+          ),
+        );
 
         setData(filtered);
 
@@ -112,7 +162,10 @@ const Learn = () => {
           setActiveLang(filtered[0].contentname);
         }
       } catch (error) {
-        console.error("Failed to fetch learning content:", error);
+        console.error(
+          "Failed to fetch learning content:",
+          error,
+        );
       }
     };
 
@@ -138,6 +191,7 @@ const Learn = () => {
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-black via-gray-950 to-gray-900">
+      {/* Mobile Header */}
       <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-950/90 backdrop-blur border-b border-gray-800 px-4 py-3 flex items-center justify-between">
         <h1 className="text-white font-semibold truncate">
           {activeLang || "Learn"}
@@ -151,6 +205,7 @@ const Learn = () => {
         </button>
       </header>
 
+      {/* Sidebar */}
       <aside
         className={`
           fixed md:static inset-0 z-50 md:z-0
@@ -183,6 +238,7 @@ const Learn = () => {
           </h2>
         </div>
 
+        {/* Search */}
         <input
           type="text"
           placeholder="Search language..."
@@ -202,85 +258,56 @@ const Learn = () => {
           "
         />
 
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Code2 className="text-blue-400" size={18} />
+        {/* Categories */}
+        {Object.entries(LANGUAGE_CATEGORIES).map(
+          ([category, languages]) => (
+            <div key={category} className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                {CATEGORY_ICONS[category]}
 
-            <h3 className="text-blue-400 font-semibold">
-              Web Development
-            </h3>
-          </div>
+                <h3 className="text-white font-semibold">
+                  {category}
+                </h3>
+              </div>
 
-          <ul className="space-y-2">
-            {filteredData
-              .filter((item) =>
-                WEB_LANGUAGES.includes(
-                  item.contentname.toLowerCase(),
-                ),
-              )
-              .map((item) => (
-                <li key={item._id}>
-                  <button
-                    onClick={() => {
-                      setActiveLang(item.contentname);
-                      setSidebarOpen(false);
-                    }}
-                    className={`
-                      w-full text-left px-4 py-2.5 rounded-xl transition-all
-                      ${
-                        activeLang === item.contentname
-                          ? "bg-blue-500/20 border border-blue-500/30 text-blue-400"
-                          : "text-gray-300 hover:bg-gray-800"
-                      }
-                    `}
-                  >
-                    {item.contentname}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
+              <ul className="space-y-2">
+                {filteredData
+                  .filter((item) =>
+                    languages.includes(
+                      item.contentname.toLowerCase(),
+                    ),
+                  )
+                  .map((item) => (
+                    <li key={item._id}>
+                      <button
+                        onClick={() => {
+                          setActiveLang(
+                            item.contentname,
+                          );
 
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Cpu className="text-orange-400" size={18} />
-
-            <h3 className="text-orange-400 font-semibold">
-              System Programming
-            </h3>
-          </div>
-
-          <ul className="space-y-2">
-            {filteredData
-              .filter((item) =>
-                SYSTEM_LANGUAGES.includes(
-                  item.contentname.toLowerCase(),
-                ),
-              )
-              .map((item) => (
-                <li key={item._id}>
-                  <button
-                    onClick={() => {
-                      setActiveLang(item.contentname);
-                      setSidebarOpen(false);
-                    }}
-                    className={`
-                      w-full text-left px-4 py-2.5 rounded-xl transition-all
-                      ${
-                        activeLang === item.contentname
-                          ? "bg-orange-500/20 border border-orange-500/30 text-orange-400"
-                          : "text-gray-300 hover:bg-gray-800"
-                      }
-                    `}
-                  >
-                    {item.contentname}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </div>
+                          setSidebarOpen(false);
+                        }}
+                        className={`
+                          w-full text-left px-4 py-2.5 rounded-xl transition-all
+                          ${
+                            activeLang ===
+                            item.contentname
+                              ? "bg-green-500/20 border border-green-500/30 text-green-400"
+                              : "text-gray-300 hover:bg-gray-800"
+                          }
+                        `}
+                      >
+                        {item.contentname}
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ),
+        )}
       </aside>
 
+      {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 md:px-10 pt-24 md:pt-10 pb-12">
         <div className="max-w-5xl mx-auto bg-gray-900/70 border border-gray-800 backdrop-blur-xl rounded-3xl p-6 md:p-10 shadow-2xl">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
@@ -293,7 +320,9 @@ const Learn = () => {
 
           <div>
             {activeContent?.content &&
-              renderContent(activeContent.content)}
+              renderContent(
+                activeContent.content,
+              )}
           </div>
         </div>
       </main>

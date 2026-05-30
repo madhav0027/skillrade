@@ -107,7 +107,7 @@ export default function Dashboard() {
                       <span>{us.status}</span>
                       <button
                         onClick={() =>
-                          navigate("/quizlist", )
+                          navigate("/quizlist", {state : {skillId:us.SkillId._id}})
                         }
                         className="p-2 rounded-full bg-green-600/20 hover:bg-green-600/30 transition"
                       >
@@ -120,10 +120,9 @@ export default function Dashboard() {
                   <div className="w-full bg-gray-800 rounded-full h-2">
                     <div
                       className="bg-green-500 h-2 rounded-full transition-all"
-                      style={{ width: `${us.progress}%` }}
+                      style={{ width: `${us.progress*1.25}%` }}
                     />
-                  </div>
-                  <p className="text-sm text-white mt-1">{us.level}</p>                  
+                  </div>              
                   <p className="text-xs text-gray-500 mt-1">proficiency</p>                  
                 </div>
               ))}

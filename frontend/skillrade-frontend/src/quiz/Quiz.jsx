@@ -1,5 +1,3 @@
-// Quiz.jsx
-
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,24 +5,19 @@ import { CheckCircle } from "lucide-react";
 
 export default function Quiz() {
   const [current, setCurrent] = useState(0);
+  const [quizData, setQuizData] = useState([]);
+  const [answers, setAnswers] = useState({});
   const [userAnswer, setUserAnswer] = useState("");
-  const [iscorrect, setiscorrect] = useState(false);
-  const [submitbtn, setsubmitbtn] = useState(true);
   const [showResult, setShowResult] = useState(false);
-
-  // All flattened questions
-  const [quizData, setquizData] = useState([]);
-
-  const [correctans, setcorrectans] = useState(0);
+  const [quizId, setquizId] = useState("");
+  const [result, setResult] = useState(null);
 
   const navigate = useNavigate();
   const { state } = useLocation();
 
   const SkillId = state?.skillId;
-  const level = state?.level;
   const title = state?.title;
 
-  // Fetch Quiz
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
@@ -34,116 +27,71 @@ export default function Quiz() {
           `api/quizzes/skill/${SkillId}`
         );
 
-        console.log("API DATA:", res.data);
+        const quiz = res.data;
+        setquizId(quiz.quizId);
 
-        // Filter level safely
-        const filteredQuiz = res.data.filter(
-          (quiz) =>
-            quiz.level?.trim().toLowerCase() ===
-            level?.trim().toLowerCase()
-          );
-
-        console.log("FILTERED QUIZ:", filteredQuiz);
-
-        // Flatten all questions
-        const allQuestions = filteredQuiz.flatMap((quiz) =>
-          quiz.questions.map((q) => ({
+        const allQuestions = quiz.questions.map(
+          (q, index) => ({
             ...q,
-            quizId: quiz._id,
-          }))
+            index,
+          })
         );
 
-        console.log("ALL QUESTIONS:", allQuestions);
-
-        setquizData(allQuestions);
+        setQuizData(allQuestions);
       } catch (error) {
-        console.log("Quiz Fetch Error:", error);
+        console.log(error);
       }
     };
 
     fetchQuiz();
-  }, [SkillId, level]);
+  }, [SkillId]);
 
-  // Current Question
   const question =
     quizData[current]?.questionText || "";
 
-  // Submit
-  const handleSubmit = async () => {
+  // NEXT
+  const handleNext = () => {
+    setAnswers({
+      ...answers,
+      [current]: userAnswer,
+    });
+
+    setUserAnswer("");
+
+    if (current + 1 < quizData.length) {
+      setCurrent((prev) => prev + 1);
+    }
+  };
+
+  // FINAL SUBMIT
+  const handleFinalSubmit = async () => {
+    const finalAnswers = {
+      ...answers,
+      [current]: userAnswer,
+    };
+
     try {
-      if (!quizData[current]) return;
-
-      const quizid = quizData[current]?.quizId;
-
-      const correctAnswer =
-        quizData[current]?.correctans
-          ?.trim()
-          .toLowerCase();
-
-      const answer = userAnswer
-        .trim()
-        .toLowerCase();
-
-      // Wrong Answer
-      if (answer !== correctAnswer) {
-        setiscorrect(false);
-        return;
-      }
-
-      setsubmitbtn(false);
-
       const res = await API.post(
         "api/quizzes/skill/submit",
         {
-          _id: quizid,
-          answer: userAnswer,
+          quizId,
+          answers: finalAnswers,
         }
       );
 
-      console.log("SUBMIT RESPONSE:", res.data);
-
-      if (res.data.passed === true) {
-        setiscorrect(true);
-
-        setcorrectans((prev) => prev + 1);
-
-        // Next Question
-        if (current + 1 < quizData.length) {
-          setTimeout(() => {
-            setCurrent((prev) => prev + 1);
-            setUserAnswer("");
-            setsubmitbtn(true);
-            setiscorrect(false);
-          }, 1000);
-        } else {
-          setTimeout(() => {
-            setShowResult(true);
-          }, 1000);
-        }
-      }
-    } catch (error) {
-      console.log("Submit Error:", error);
+      setResult(res.data);
+      setShowResult(true);
+    } catch (err) {
+      console.log(err);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center px-4 py-12">
+
       <div className="relative w-full max-w-4xl bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-2xl p-8 md:p-12 shadow-2xl shadow-black/40">
-        
-        {/* Loading */}
-        {quizData.length === 0 && !showResult && (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-white">
-              Loading Quiz...
-            </h2>
 
-            <p className="text-gray-400 mt-3">
-              No quiz found for this level
-            </p>
-          </div>
-        )}
-
-        {/* Quiz */}
+        {/* QUIZ */}
         {!showResult && quizData.length > 0 && (
           <>
             {/* Header */}
@@ -152,112 +100,121 @@ export default function Quiz() {
                 {title}
               </h2>
 
-              <p className="text-gray-400 capitalize mt-2">
-                {level} Level Quiz
+              <p className="text-gray-400 mt-2">
+                Question {current + 1} /{" "}
+                {quizData.length}
               </p>
             </div>
 
-            {/* Question Number */}
-            <h3 className="text-lg text-green-400 font-medium mb-3">
-              Question {current + 1} / {quizData.length}
-            </h3>
-
             {/* Question */}
             <p className="text-2xl md:text-3xl font-bold text-white mb-10 leading-relaxed whitespace-pre-line">
-              {question.replace(/\\n/g, "\n")}
+              {question}
             </p>
 
             {/* Input */}
             <input
-              type="text"
-              placeholder="Type your answer..."
               value={userAnswer}
               onChange={(e) =>
                 setUserAnswer(e.target.value)
               }
-              className={`w-full md:w-2/3 bg-gray-800 border rounded-xl px-5 py-3 text-lg text-gray-200 placeholder-gray-500 focus:outline-none mb-8 ${
-                iscorrect
-                  ? "border-green-500"
-                  : "border-gray-700"
-              }`}
+              placeholder="Type your answer..."
+              className="w-full md:w-2/3 bg-gray-800 border border-gray-700 rounded-xl px-5 py-3 text-lg text-gray-200 placeholder-gray-500 focus:outline-none mb-8"
             />
 
-            {/* Submit */}
+            {/* Buttons */}
             <div className="flex items-center justify-between">
-              <button
-                onClick={submitbtn ? handleSubmit : null}
-                className={`px-6 py-3 rounded-full text-lg font-medium transition-all ${
-                  submitbtn
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Submit
-              </button>
+              {current + 1 < quizData.length ? (
+                <button
+                  onClick={handleNext}
+                  className="px-6 py-3 rounded-full text-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition"
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  onClick={handleFinalSubmit}
+                  className="px-6 py-3 rounded-full text-lg font-medium bg-green-600 hover:bg-green-700 text-white transition"
+                >
+                  Submit Quiz
+                </button>
+              )}
             </div>
-
-            {/* Correct Badge */}
-            {iscorrect && (
-              <div className="absolute top-6 right-6 flex items-center gap-2 bg-green-600/20 border border-green-600/40 px-4 py-2 rounded-xl">
-                <CheckCircle className="text-green-400" />
-
-                <span className="text-green-400 font-medium">
-                  Correct!
-                </span>
-              </div>
-            )}
           </>
         )}
 
-        {/* Result */}
-        {showResult && (
+        {/* RESULT */}
+        {showResult && result && (
           <div className="text-center py-12">
-            <h2 className="text-4xl font-bold text-white mb-4">
+
+            <h2 className="text-4xl font-bold text-white mb-6">
               Quiz Completed 🎉
             </h2>
 
-            <p className="text-gray-400 text-lg mb-8">
-              Great job completing the quiz
+            <p className="text-gray-400 text-lg mb-10">
+              Here is your performance summary
             </p>
 
-            {/* Correct Answers */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Score */}
+            <div className="flex items-center justify-between mb-6">
               <p className="text-gray-400 text-lg">
-                Correct Answers
+                Score
               </p>
 
               <p className="text-2xl font-bold text-green-400">
-                {correctans} / {quizData.length}
+                {result.score} / {result.total}
               </p>
             </div>
 
             {/* Accuracy */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <p className="text-gray-400 text-lg">
                 Accuracy
               </p>
 
               <p className="text-2xl font-bold text-blue-400">
-                {quizData.length > 0
-                  ? Math.round(
-                      (correctans / quizData.length) * 100
-                    )
-                  : 0}
-                %
+                {result.percentage}%
               </p>
             </div>
 
-            {/* Button */}
+            {/* Status */}
+            <div className="mb-8">
+              {result.passed ? (
+                <div className="flex items-center justify-center gap-2 text-green-400">
+                  <CheckCircle />
+                  <span className="text-xl font-semibold">
+                    Passed
+                  </span>
+                </div>
+              ) : (
+                <span className="text-red-400 text-xl font-semibold">
+                  Failed
+                </span>
+              )}
+            </div>
+
+            {/* Buttons */}
+            {!result.passed && (
+              <button
+                onClick={() => {
+                  setCurrent(0);
+                  setAnswers({});
+                  setShowResult(false);
+                }}
+                className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white mr-4"
+              >
+                Restart Quiz
+              </button>
+            )}
+
             <button
-              onClick={() =>
-                navigate("/", { replace: true })
-              }
-              className="px-8 py-4 rounded-xl text-lg font-medium text-white bg-green-600 hover:bg-green-700 transition"
+              onClick={() => navigate("/")}
+              className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white"
             >
-              Go to Dashboard
+              Dashboard
             </button>
           </div>
         )}
+
       </div>
     </div>
   );

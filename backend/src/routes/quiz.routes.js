@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/auth.middleware");
 //ADMIN
 router.post("/", quizcontroller.createQuiz);
 
-//getuserquiz
+// //getuserquiz
 router.get("/" , authMiddleware, quizcontroller.getskillbyuser);
 
 //getuserskill
@@ -13,6 +13,6 @@ router.get("/skill/:SkillId", authMiddleware, quizcontroller.getuserbyskill);
 
 
 //User
-router.post("/skill/submit", authMiddleware, quizcontroller.submitquiz);
+router.post("/skill/submit", authMiddleware, quizcontroller.submitFullQuiz);
 
 module.exports = router;

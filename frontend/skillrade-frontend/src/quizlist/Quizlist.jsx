@@ -1,8 +1,6 @@
-// QuizList.jsx
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Star, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import API from "../api/api";
 import { useAuth } from "../authcontext/AuthContext";
 
@@ -11,6 +9,9 @@ export default function QuizList() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const selectedSkillId = location.state?.skillId || null;
 
   useEffect(() => {
     if (user) {
@@ -20,41 +21,49 @@ export default function QuizList() {
     }
   }, [user]);
 
-  const difficultyMap = {
-    beginner: 1,
-    intermediate: 2,
-    advanced: 3,
-  };
-
   const levelOrder = {
     beginner: 1,
     intermediate: 2,
     advanced: 3,
   };
 
-  const sortedQuiz = [...quizData].sort(
-    (a, b) => levelOrder[a.level] - levelOrder[b.level]
-  );
-
-  const renderStars = (difficulty) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[...Array(3)].map((_, index) => (
-          <Star
-            key={index}
-            size={16}
-            className={`${
-              index < difficulty
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-gray-600"
-            }`}
-          />
-        ))}
-      </div>
-    );
+  const difficultyMap = {
+    beginner: 1,
+    intermediate: 2,
+    advanced: 3,
   };
 
-  // Open Quiz Page
+  // FILTER LOGIC
+  const filteredQuizzes = useMemo(() => {
+    let data = [...quizData];
+
+    if (selectedSkillId) {
+      data = data.filter(
+        (quiz) => quiz.SkillId === selectedSkillId
+      );
+    }
+
+    return data.sort(
+      (a, b) => levelOrder[a.level] - levelOrder[b.level]
+    );
+  }, [quizData, selectedSkillId]);
+
+  const renderStars = (difficulty) => (
+    <div className="flex items-center gap-1">
+      {[...Array(3)].map((_, index) => (
+        <Star
+          key={index}
+          size={16}
+          className={
+            index < difficulty
+              ? "fill-yellow-400 text-yellow-400"
+              : "text-gray-600"
+          }
+        />
+      ))}
+    </div>
+  );
+
   const handleOpenQuiz = (quiz) => {
     navigate("/quiz", {
       state: {
@@ -76,33 +85,28 @@ export default function QuizList() {
           <p className="text-gray-400 mt-2">
             Practice programming quizzes and improve your skills
           </p>
+          {selectedSkillId}
         </div>
 
         <div className="space-y-4">
-          {sortedQuiz.map((quiz) => (
+          {filteredQuizzes.map((quiz) => (
             <div
               key={quiz._id}
               onClick={() => handleOpenQuiz(quiz)}
               className="group bg-gray-900/70 border border-gray-800 hover:border-green-500 rounded-2xl px-6 py-5 transition-all duration-300 backdrop-blur-xl cursor-pointer"
             >
               <div className="flex items-center justify-between">
-                {/* Left */}
                 <div>
                   <h2 className="text-xl font-semibold text-white group-hover:text-green-400 transition">
                     {quiz.title}
                   </h2>
 
-                  <p className="text-sm text-gray-500 mt-1 capitalize">
-                    {quiz.level} Level
-                  </p>
                 </div>
 
-                {/* Middle */}
                 <div className="hidden md:flex">
                   {renderStars(difficultyMap[quiz.level])}
                 </div>
 
-                {/* Right */}
                 <div className="flex items-center gap-5">
                   <div className="text-right">
                     <p className="text-sm text-gray-400">
@@ -110,7 +114,8 @@ export default function QuizList() {
                     </p>
 
                     <p className="text-lg font-bold text-green-400">
-                      {quiz.passed || 0}/{quiz.questions?.length || 0}
+                      {quiz.passed || 0}/
+                      {quiz.questions?.length || 0}
                     </p>
                   </div>
 
